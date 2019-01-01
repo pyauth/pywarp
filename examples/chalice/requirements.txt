@@ -1,0 +1,4 @@
+pyjwt >= 1.5.3, < 2
+cbor2 >= 4.1.2, < 5
+cryptography >= 2.1.4, < 3
+pynamodb >= 3.3.1, < 4

@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <script language="javascript">
+      function arrayBufferToBase64(a) {
+        return btoa(String.fromCharCode(...new Uint8Array(a)));
+      }
+      function base64ToArrayBuffer(b) {
+        return Uint8Array.from(atob(b), c => c.charCodeAt(0));
+      }
+      function JSONRequest(route, body) {
+        return new Request(route, {method: "POST",
+                                   headers: {"Content-Type": "application/json"},
+                                   body: JSON.stringify(body)});
+      }
+      // Note: The following call will cause the authenticator to display UI.
+      // See https://www.w3.org/TR/webauthn/#registering-a-new-credential
+      function createCreds() {
+        var email = document.webauthn_input.email.value;
+        fetch(JSONRequest("getCredentialCreateOptions", {email}))
+          .then(function(res) {
+            return res.json()
+          }).then(function(options) {
+            options.challenge = base64ToArrayBuffer(options.challenge);
+            options.user.id = new TextEncoder().encode(options.user.name);
+            console.log("Credential create options:");
+            console.dir(options);
+            navigator.credentials.create({publicKey: options}).then(function (newCredentialInfo) {
+              console.log("Created credential:");
+              console.dir(newCredentialInfo);
+              // Send new credential info to server for verification and registration
+              var dataForServer = {};
+              ["attestationObject", "clientDataJSON"].map(f => {
+                dataForServer[f] = arrayBufferToBase64(newCredentialInfo.response[f]);
+              });
+              dataForServer.email = btoa(email);
+              fetch(JSONRequest("registerCredential", dataForServer)).then(function(res) {
+                console.log("Response from registerCredential:");
+                console.dir(res);
+                return res.blob();
+              }).then(function(body) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                  console.log(JSON.parse(reader.result));
+                }
+                reader.readAsText(body);
+              });
+            }).catch(function (err) {
+              console.log(err); // No acceptable authenticator or user refused consent
+              console.dir(err);
+            });
+          });
+      }
+
+      // See https://www.w3.org/TR/webauthn/#verifying-assertion
+      function login() {
+        var email = document.webauthn_input.email.value;
+        fetch(JSONRequest("getCredentialGetOptions", {email}))
+          .then(function(res) {
+            return res.json()
+          }).then(function(options) {
+            options.challenge = base64ToArrayBuffer(options.challenge);
+            for (let cred of options.allowCredentials) {
+              cred.id = Uint8Array.from(atob(cred.id), c => c.charCodeAt(0));
+            }
+            console.log("Credential get options:");
+            console.dir(options);
+            navigator.credentials.get({publicKey: options}).then(function (assertion) {
+              // Send assertion to server for verification
+              console.log("Got assertion:");
+              console.dir(assertion);
+              var dataForServer = {};
+              ["authenticatorData", "clientDataJSON", "signature", "userHandle", "rawId"].map(f => {
+                dataForServer[f] = arrayBufferToBase64(assertion.response[f]);
+              });
+              dataForServer.email = btoa(email);
+              fetch(JSONRequest("verifyAssertion", dataForServer)).then(function(res) {
+                console.log("Response from verifyAssertion:");
+                console.dir(res);
+                return res.blob();
+              }).then(function(body) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                  console.log(JSON.parse(reader.result));
+                }
+                reader.readAsText(body);
+              });
+            }).catch(function (err) {
+              console.log(err); // No acceptable credential or user refused consent
+              console.dir(err);
+            });
+          });
+      }
+    </script>
+</head>
+<body>
+  Webauthn demo
+  <form name="webauthn_input" onsubmit="event.preventDefault()">
+    Email: <input type="text" name="email">
+    <button onclick="createCreds()">Create account</button>
+    <button onclick="login()">Log in</button>
+  </form>
+</body>
+</html>

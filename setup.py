@@ -7,7 +7,7 @@ tests_require = ["coverage", "flake8", "wheel"]
 setup(
     name="pywarp",
     version="0.0.2",
-    url="https://github.com/kislyuk/pywarp",
+    url="https://github.com/pyauth/pywarp",
     license="Apache Software License",
     author="Andrey Kislyuk",
     author_email="kislyuk@gmail.com",

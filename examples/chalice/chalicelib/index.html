@@ -41,12 +41,13 @@
                 var reader = new FileReader();
                 reader.onload = function() {
                   console.log(JSON.parse(reader.result));
+                  document.getElementById("result").innerHTML = reader.result;
                 }
                 reader.readAsText(body);
               });
             }).catch(function (err) {
-              console.log(err); // No acceptable authenticator or user refused consent
-              console.dir(err);
+              console.log("Error in navigator.credentials.create: " + err);
+              console.dir(err); // No acceptable authenticator or user refused consent
             });
           });
       }
@@ -81,23 +82,25 @@
                 var reader = new FileReader();
                 reader.onload = function() {
                   console.log(JSON.parse(reader.result));
+                  document.getElementById("result").innerHTML = reader.result;
                 }
                 reader.readAsText(body);
               });
             }).catch(function (err) {
-              console.log(err); // No acceptable credential or user refused consent
-              console.dir(err);
+              console.log("Error in navigator.credentials.get: " + err);
+              console.dir(err); // No acceptable credential or user refused consent
             });
           });
       }
     </script>
 </head>
 <body>
-  Webauthn demo
+  <a href="https://github.com/pyauth/pywarp">PyWARP</a> WebAuthn demo
   <form name="webauthn_input" onsubmit="event.preventDefault()">
     Email: <input type="text" name="email">
     <button onclick="createCreds()">Create account</button>
     <button onclick="login()">Log in</button>
   </form>
+  <div id="result"></div>
 </body>
 </html>

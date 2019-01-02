@@ -15,7 +15,7 @@ Compared to more basic two-factor standards like HOTP (`RFC 4226 <https://tools.
 avoid using a shared secret design, which strengthens your authentication solution against server-side attacks. Hardware
 U2F also sequesters the client secret in a dedicated single-purpose device, which strengthens your clients against
 client-side attacks. And by automating scoping of credentials to relying party IDs (application origin/domain names),
-U2F adds protection against phishing attacks.
+WebAuthn/U2F adds protection against phishing attacks.
 
 PyWARP implements the *Relying Party* component of WebAuthn. A Relying Party is a server-side application that instructs
 the browser (user agent) to use WebAuthn APIs to authenticate its users.
@@ -34,7 +34,8 @@ Installation
 
     pip install pywarp
 
-PyWARP depends on `cryptography <https://github.com/pyca/cryptography>`_, which in turn requires OpenSSL and CFFI.
+PyWARP depends on `cryptography <https://github.com/pyca/cryptography>`_, which in turn requires OpenSSL and CFFI. See
+the `cryptography installation docs <https://cryptography.io/en/latest/installation/>`_ for more details.
 
 Synopsis
 --------
@@ -42,20 +43,21 @@ Synopsis
 .. code-block:: python
 
     from pywarp import RelyingPartyManager, Credential
-    from pywarp.backends import DynamoBackend  # This is an example. See "storage backends" below for other databases.
+    # Using DynamoDB as an example. See "storage backends" below for other databases.
+    from pywarp.backends import DynamoBackend
 
     rp_id = "myapp.example.com"  # This must match the origin domain of your app, as seen by the browser.
     rp = RelyingPartyManager("PyWARP demo", rp_id=rp_id, credential_storage_backend=DynamoBackend())
 
     # Get options for navigator.credentials.create() - pass these to your frontend when registering a user
-    rp.get_registration_options(email=str)
+    opts = rp.get_registration_options(email=str)
 
     # Run the protocol in https://www.w3.org/TR/webauthn/#registering-a-new-credential,
     # then call the credential storage backend to store the credential public key.
     rp.register(attestation_object=bytes, client_data_json=bytes, email=bytes)
 
     # Get options for navigator.credentials.get() - pass these to your frontend when logging in a user
-    rp.get_authentication_options(email=str)
+    opts = rp.get_authentication_options(email=str)
 
     # Run the protocol in https://www.w3.org/TR/webauthn/#verifying-assertion,
     # calling the credential storage backend to retrieve the credential public key.
@@ -79,8 +81,11 @@ database, then pass an instance of your subclass to ``pywarp.RelyingPartyManager
 
 .. code-block:: python
 
-    class CredentialStorageBackend:
-        def __init__(self):
+    from pywarp import RelyingPartyManager, Credential
+    from pywarp.backends import CredentialStorageBackend
+
+    class MyDBBackend(CredentialStorageBackend):
+        def __init__(self, ...):
             self.database_client = ...
 
         def get_credential_by_email(self, email):
@@ -99,12 +104,17 @@ database, then pass an instance of your subclass to ``pywarp.RelyingPartyManager
             user_record = self.database_client.get(email)
             return user_record[type + "challenge"]
 
+    my_rp = RelyingPartyManager(credential_storage_backend=MyDBBackend(...), ...)
+
 Example: Chalice app
 --------------------
 
-The Chalice app example (in the ``examples/chalice`` directory) can be deployed as an `AWS Lambda <TODO>`_ application
-when used with conventional AWS account credentials (configured via ``aws configure`` in the `AWS CLI <TODO>`_. This
-example uses `DynamoDB <TODO>`_ as a storage backend.
+The Chalice app example (in the ``examples/chalice`` directory) can be deployed as an
+`AWS Lambda <https://aws.amazon.com/lambda/>`_ application when used with conventional AWS account credentials
+(configured via ``aws configure`` in the `AWS CLI <https://aws.amazon.com/cli/>`_. This example uses
+`DynamoDB <https://aws.amazon.com/dynamodb/>`_ as a storage backend.
+
+To deploy this example, run ``make -C examples/chalice`` after configuring your AWS CLI credentials.
 
 See the `API documentation <https://pywarp.readthedocs.io>`_ for more.
 

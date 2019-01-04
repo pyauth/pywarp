@@ -1,7 +1,7 @@
 """
 See https://www.w3.org/TR/webauthn/#api
 """
-import re, json, copy, secrets, struct, hashlib, textwrap
+import re, json, copy, struct, hashlib, textwrap
 
 import cbor2
 
@@ -9,6 +9,7 @@ from .attestation import FIDOU2FAttestationStatement
 from .cose import COSE
 from .credentials import Credential
 from .util import Placeholder, b64_encode, b64url_decode
+from .util.compat import token_bytes
 
 class AuthenticatorData:
     def __init__(self, auth_data):
@@ -63,7 +64,7 @@ class RelyingPartyManager:
 
     def get_registration_options(self, email):
         "Get challenge parameters that will be passed to the user agent's navigator.credentials.get() method"
-        challenge = secrets.token_bytes(32)
+        challenge = token_bytes(32)
         options = copy.deepcopy(self.registration_options)
         options["rp"]["name"] = self.rp_name
         if self.rp_id:
@@ -77,7 +78,7 @@ class RelyingPartyManager:
         return options
 
     def get_authentication_options(self, email):
-        challenge = secrets.token_bytes(32)
+        challenge = token_bytes(32)
         credential = self.storage_backend.get_credential_by_email(email)
         options = copy.deepcopy(self.authentication_options)
         options["challenge"] = b64_encode(challenge)

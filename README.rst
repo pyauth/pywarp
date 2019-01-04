@@ -118,7 +118,7 @@ The Chalice app example (in the ``examples/chalice`` directory) can be deployed 
 
 To deploy this example, run ``make -C examples/chalice`` after configuring your AWS CLI credentials.
 
-See the `API documentation <https://pywarp.readthedocs.io>`_ for more.
+See the `API documentation <https://pywarp.readthedocs.io/>`_ for more.
 
 Authors
 -------
@@ -139,8 +139,8 @@ License
 -------
 Licensed under the terms of the `Apache License, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
-.. image:: https://img.shields.io/travis/pyauth/pywarp.svg
-        :target: https://travis-ci.org/pyauth/pywarp
+.. image:: https://img.shields.io/travis/com/pyauth/pywarp.svg
+        :target: https://travis-ci.com/pyauth/pywarp
 .. image:: https://codecov.io/github/pyauth/pywarp/coverage.svg?branch=master
         :target: https://codecov.io/github/pyauth/pywarp?branch=master
 .. image:: https://img.shields.io/pypi/v/pywarp.svg

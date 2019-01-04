@@ -40,7 +40,7 @@ def get_credential_get_options():
 def verify_assertion():
     rp.rp_id = app.current_request.context["domainName"]
     req = {xform_name(f): base64.b64decode(app.current_request.json_body[f]) for f in app.current_request.json_body}
-    print("verify_assertion inputs:", req)
+    print("verifyAssertion inputs:", req)
     return rp.verify(**req)
 
 rp = RelyingPartyManager("PyWARP demo", credential_storage_backend=DynamoBackend())

@@ -40,7 +40,6 @@
               }).then(function(body) {
                 var reader = new FileReader();
                 reader.onload = function() {
-                  console.log(JSON.parse(reader.result));
                   document.getElementById("result").innerHTML = reader.result;
                 }
                 reader.readAsText(body);
@@ -81,7 +80,6 @@
               }).then(function(body) {
                 var reader = new FileReader();
                 reader.onload = function() {
-                  console.log(JSON.parse(reader.result));
                   document.getElementById("result").innerHTML = reader.result;
                 }
                 reader.readAsText(body);

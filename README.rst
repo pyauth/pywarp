@@ -115,7 +115,7 @@ Example: Chalice app
 
 The Chalice app example (in the ``examples/chalice`` directory) can be deployed as an
 `AWS Lambda <https://aws.amazon.com/lambda/>`_ application when used with conventional AWS account credentials
-(configured via ``aws configure`` in the `AWS CLI <https://aws.amazon.com/cli/>`_. This example uses
+(configured via ``aws configure`` in the `AWS CLI <https://aws.amazon.com/cli/>`_). This example uses
 `DynamoDB <https://aws.amazon.com/dynamodb/>`_ as a storage backend.
 
 To deploy this example, run ``make -C examples/chalice`` after configuring your AWS CLI credentials.

@@ -8,7 +8,8 @@ devices such as `Yubico YubiKey <https://www.yubico.com/>`_,
 `Google Titan <https://store.google.com/us/product/titan_security_key_kit>`_,
 `TPM <https://en.wikipedia.org/wiki/Trusted_Platform_Module>`_, and
 `Touch ID <https://en.wikipedia.org/wiki/Touch_ID>`_. PyWARP's design goal is to provide an
-`ergonomic <https://github.com/google/mundane/blob/master/DESIGN.md>`_ and intuitive API with trusted dependencies.
+`ergonomic <https://github.com/google/mundane/blob/master/DESIGN.md>`_ and intuitive API to guide the implementer with good
+defaults and trusted dependencies.
 
 Compared to more basic two-factor standards like HOTP (`RFC 4226 <https://tools.ietf.org/html/rfc4226>`_) and TOTP
 (`RFC 6238 <https://tools.ietf.org/html/rfc6238>`_), the

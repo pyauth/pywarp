@@ -69,8 +69,9 @@ Synopsis
     rp.verify(authenticator_data=bytes, client_data_json=bytes, signature=bytes, user_handle=bytes, raw_id=bytes,
               email=bytes)
 
-See `examples/chalice/app.py <examples/chalice/app.py>`_ and
-`examples/chalice/chalicelib/index.html <examples/chalice/chalicelib/index.html>`_ (frontend) for a complete example.
+See `examples/chalice/app.py <https://github.com/pyauth/pywarp/blob/master/examples/chalice/app.py>`_ and
+`examples/chalice/chalicelib/index.html <https://github.com/pyauth/pywarp/blob/master/examples/chalice/chalicelib/index.html>`_
+(frontend) for a complete example.
 
 Storage backends
 ----------------

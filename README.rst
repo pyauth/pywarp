@@ -11,7 +11,7 @@ devices such as `Yubico YubiKey <https://www.yubico.com/>`_,
 `ergonomic <https://github.com/google/mundane/blob/master/DESIGN.md>`_ and intuitive API to guide the implementer with good
 defaults and trusted dependencies.
 
-Compared to more basic two-factor standards like HOTP (`RFC 4226 <https://tools.ietf.org/html/rfc4226>`_) and TOTP
+Compared to earlier two-factor standards like HOTP (`RFC 4226 <https://tools.ietf.org/html/rfc4226>`_) and TOTP
 (`RFC 6238 <https://tools.ietf.org/html/rfc6238>`_), the
 `FIDO U2F <https://en.wikipedia.org/wiki/Universal_2nd_Factor>`_ profile of WebAuthn uses asymmetric cryptography to
 avoid using a shared secret design, which strengthens your authentication solution against server-side attacks. Hardware

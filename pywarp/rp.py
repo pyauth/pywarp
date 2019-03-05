@@ -87,14 +87,17 @@ class RelyingPartyManager:
         # Verify that the RP ID hash in authData is indeed the SHA-256 hash of the RP ID expected by the RP.
         authenticator_data = AuthenticatorData(authenticator_attestation_response["authData"])
         assert authenticator_data.user_present
-        # If user verification is required for this registration,
-        # verify that the User Verified bit of the flags in authData is set.
-        assert authenticator_attestation_response["fmt"] == "fido-u2f"
-        att_stmt = FIDOU2FAttestationStatement(authenticator_attestation_response['attStmt'])
-        attestation = att_stmt.validate(authenticator_data,
-                                        rp_id_hash=authenticator_data.rp_id_hash,
-                                        client_data_hash=client_data_hash)
-        credential = attestation.credential
+        if authenticator_data.user_verified:
+            credential = authenticator_data.credential
+        else:
+            # If user verification is required for this registration,
+            # verify that the User Verified bit of the flags in authData is set.
+            assert authenticator_attestation_response["fmt"] == "fido-u2f"
+            att_stmt = FIDOU2FAttestationStatement(authenticator_attestation_response['attStmt'])
+            attestation = att_stmt.validate(authenticator_data,
+                                            rp_id_hash=authenticator_data.rp_id_hash,
+                                            client_data_hash=client_data_hash)
+            credential = attestation.credential
         # TODO: ascertain user identity here
         self.storage_backend.save_credential_for_user(email=email, credential=credential)
         return {"registered": True}

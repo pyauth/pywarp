@@ -38,10 +38,11 @@ class RelyingPartyManager:
         "allowCredentials": []
     }
 
-    def __init__(self, rp_name, rp_id=None, credential_storage_backend=None):
+    def __init__(self, rp_name, rp_id=None, credential_storage_backend=None, debug=False):
         self.storage_backend = credential_storage_backend
         self.rp_name = rp_name
         self.rp_id = rp_id
+        self.debug = debug
 
     def get_registration_options(self, email):
         "Get challenge parameters that will be passed to the user agent's navigator.credentials.get() method"
@@ -81,7 +82,7 @@ class RelyingPartyManager:
         expect_challenge = self.storage_backend.get_challenge_for_user(email=email, type="registration")
         assert b64url_decode(client_data["challenge"]) == expect_challenge
         print("expect RP ID:", self.rp_id)
-        if self.rp_id:
+        if self.rp_id and not self.debug:
             assert "https://" + self.rp_id == client_data["origin"]
         # Verify that the value of C.origin matches the Relying Party's origin.
         # Verify that the RP ID hash in authData is indeed the SHA-256 hash of the RP ID expected by the RP.
@@ -111,7 +112,7 @@ class RelyingPartyManager:
         expect_challenge = self.storage_backend.get_challenge_for_user(email=email, type="authentication")
         assert b64url_decode(client_data["challenge"]) == expect_challenge
         print("expect RP ID:", self.rp_id)
-        if self.rp_id:
+        if self.rp_id and not self.debug:
             assert "https://" + self.rp_id == client_data["origin"]
         # Verify that the value of C.origin matches the Relying Party's origin.
         # Verify that the RP ID hash in authData is indeed the SHA-256 hash of the RP ID expected by the RP.

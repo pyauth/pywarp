@@ -17,6 +17,7 @@ pytest = "^4.4"
 wheel = "^0.33.1"
 requests = "^2.21"
 pyjwt = "^1.7"
+faker = "^1.0"
 
 [build-system]
 requires = ["poetry>=0.12"]

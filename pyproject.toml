@@ -11,13 +11,13 @@ cbor2 = "^4.1"
 cryptography = "^2.6"
 
 [tool.poetry.dev-dependencies]
-coverage = "^4.5"
-flake8 = "^3.7"
 pytest = "^4.4"
 wheel = "^0.33.1"
 requests = "^2.21"
 pyjwt = "^1.7"
 faker = "^1.0"
+pytest-cov = "^2.6"
+pytest-flake8 = "^1.0"
 
 [build-system]
 requires = ["poetry>=0.12"]

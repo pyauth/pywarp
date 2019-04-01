@@ -1,5 +1,6 @@
 from .credentials import Credential
 
+
 class CredentialStorageBackend:
     def __init__(self):
         raise NotImplementedError("Implementers should subclass CredentialStorageBackend and pass the subclass instance"
@@ -17,9 +18,11 @@ class CredentialStorageBackend:
     def get_challenge_for_user(self, email, type):
         raise NotImplementedError()
 
+
 class DynamoBackend(CredentialStorageBackend):
     def __init__(self):
-        import pynamodb.models, pynamodb.attributes
+        import pynamodb.models
+        import pynamodb.attributes
 
         class UserModel(pynamodb.models.Model):
             class Meta:

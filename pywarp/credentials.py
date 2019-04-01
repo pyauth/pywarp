@@ -6,6 +6,7 @@ from .cose import (EC2Params, EllipticCurves, KeyTypes, Params, RSAParams,
                    SignatureAlgorithms)
 
 
+
 class CredentialPublicKey:
     def __init__(self, cbor_cose_key):
         self.cbor_cose_key = cbor_cose_key

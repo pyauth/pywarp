@@ -1,4 +1,6 @@
-import re, json, hashlib
+import hashlib
+import json
+import re
 
 import cbor2
 

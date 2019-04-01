@@ -2,6 +2,7 @@ import struct
 
 from .credentials import Credential
 
+
 class AuthenticatorData:
     def __init__(self, auth_data):
         self.raw_auth_data = auth_data

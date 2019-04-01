@@ -7,15 +7,18 @@ from cryptography.hazmat.primitives.asymmetric import ec, padding
 
 from .fido.metadata import FIDOMetadataClient
 
+
 class AttestationStatement:
     validated_attestation = namedtuple("ValidatedAttestation", "type trust_path credential")
 
     def __init__(self):
         pass
 
+
 class TPMAttestationStatement(AttestationStatement):
     def __init__(self):
         raise NotImplementedError()
+
 
 class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
     def __init__(self, att_stmt):

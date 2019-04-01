@@ -1,7 +1,8 @@
-import pytest
-
-from faker import Faker
 from collections import defaultdict
+
+import pytest
+from faker import Faker
+
 from ..pywarp import RelyingPartyManager
 from ..pywarp.backends import CredentialStorageBackend
 

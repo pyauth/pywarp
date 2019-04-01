@@ -14,13 +14,13 @@ class MemoryBackend(CredentialStorageBackend):
     def get_credential_by_email(self, email):
         return self.users[email]["credential"]
 
-    def save_credential_for_user(self, email, credential):
+    def save_credential(self, email, credential):
         self.users[email]["credential"] = credential
 
-    def save_challenge_for_user(self, email, challenge, type):
+    def save_challenge(self, email, challenge, type):
         self.users[email][type + "challenge"] = challenge
 
-    def get_challenge_for_user(self, email, type):
+    def get_challenge(self, email, type):
         return self.users[email][type + "challenge"]
 
 
@@ -31,6 +31,4 @@ def fake():
 
 @pytest.fixture
 def rp():
-    return RelyingPartyManager(
-        __name__, credential_storage_backend=MemoryBackend()
-    )
+    return RelyingPartyManager(__name__, backend=MemoryBackend())

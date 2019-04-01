@@ -12,13 +12,15 @@ from .util.compat import token_bytes
 
 
 class RelyingPartyManager:
-    def __init__(self, rp_name, rp_id=None, credential_storage_backend=None):
-        self.storage_backend = credential_storage_backend
+    def __init__(self, rp_name, rp_id=None, backend=None):
+        self.backend = backend
         self.rp_name = rp_name
         self.rp_id = rp_id
 
     def get_registration_options(self, email, display_name=None, icon=None):
-        "Get challenge parameters that will be passed to the user agent's navigator.credentials.get() method"
+        """Get challenge parameters that will be passed to the user agent's
+        navigator.credentials.get() method
+        """
         challenge = token_bytes(32)
 
         options = {
@@ -44,11 +46,11 @@ class RelyingPartyManager:
             "extensions": {"loc": True}
         }
 
-        self.storage_backend.save_challenge_for_user(email=email, challenge=challenge, type="registration")
+        self.backend.save_challenge_for_user(email=email, challenge=challenge, type="registration")
         return options
 
     def get_authentication_options(self, email):
-        credential = self.storage_backend.get_credential_by_email(email)
+        credential = self.storage_backend.get_credential(email)
         challenge = token_bytes(32)
 
         options = {
@@ -59,7 +61,7 @@ class RelyingPartyManager:
             ],
         }
 
-        self.storage_backend.save_challenge_for_user(email=email, challenge=challenge, type="authentication")
+        self.backend.save_challenge(email=email, challenge=challenge, type="authentication")
         return options
 
     # https://www.w3.org/TR/webauthn/#registering-a-new-credential
@@ -73,7 +75,7 @@ class RelyingPartyManager:
         client_data = json.loads(client_data_json)
         assert client_data["type"] == "webauthn.create"
         print("client data", client_data)
-        expect_challenge = self.storage_backend.get_challenge_for_user(email=email, type="registration")
+        expect_challenge = self.backend.get_challenge(email=email, type="registration")
         assert b64url_decode(client_data["challenge"]) == expect_challenge
         print("expect RP ID:", self.rp_id)
         if self.rp_id:
@@ -91,7 +93,7 @@ class RelyingPartyManager:
                                         client_data_hash=client_data_hash)
         credential = attestation.credential
         # TODO: ascertain user identity here
-        self.storage_backend.save_credential_for_user(email=email, credential=credential)
+        self.backend.save_credential(email=email, credential=credential)
         return {"registered": True}
 
     # https://www.w3.org/TR/webauthn/#verifying-assertion
@@ -103,7 +105,7 @@ class RelyingPartyManager:
         client_data_hash = hashlib.sha256(client_data_json).digest()
         client_data = json.loads(client_data_json)
         assert client_data["type"] == "webauthn.get"
-        expect_challenge = self.storage_backend.get_challenge_for_user(email=email, type="authentication")
+        expect_challenge = self.backend.get_challenge(email=email, type="authentication")
         assert b64url_decode(client_data["challenge"]) == expect_challenge
         print("expect RP ID:", self.rp_id)
         if self.rp_id:
@@ -112,7 +114,7 @@ class RelyingPartyManager:
         # Verify that the RP ID hash in authData is indeed the SHA-256 hash of the RP ID expected by the RP.
         authenticator_data = AuthenticatorData(authenticator_data)
         assert authenticator_data.user_present
-        credential = self.storage_backend.get_credential_by_email(email)
+        credential = self.backend.get_credential(email)
         credential.verify(signature, authenticator_data.raw_auth_data + client_data_hash)
         # signature counter check
         return {"verified": True}

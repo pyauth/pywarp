@@ -55,8 +55,8 @@ def test_register_packed_basic(fake, rp):
             1: 2,  # EC2 key type
             3: -7,  # ES256 signature algorithm
             -1: 1,  # P-256 curve
-            -2: x,
-            -3: y,
+            -2: x.to_bytes((x.bit_length() + 7) // 8, 'big'),
+            -3: y.to_bytes((y.bit_length() + 7) // 8, 'big'),
         }),
     ])
 

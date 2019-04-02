@@ -45,17 +45,28 @@ class Credential:
 
         if self.key_type == KeyTypes.EC2:
             curve = EllipticCurves[public_key[EC2Params.Curve]]
+            x, y = public_key[EC2Params.X], public_key[EC2Params.Y]
+
+            if isinstance(x, bytes):
+                x = int.from_bytes(x, 'big')
+
+            if isinstance(y, bytes):
+                y = int.from_bytes(y, 'big')
+
             public_numbers = ec.EllipticCurvePublicNumbers(
-                x=public_key[EC2Params.X],
-                y=public_key[EC2Params.Y],
-                curve=curve(),
+                curve=curve(), x=x, y=y
             )
 
         elif self.key_type == KeyTypes.RSA:
-            public_numbers = rsa.RSAPublicNumbers(
-                n=public_key[RSAParams.N],
-                e=public_key[RSAParams.E],
-            )
+            n, e = public_key[RSAParams.N], public_key[RSAParams.E]
+
+            if isinstance(n, bytes):
+                n = int.from_bytes(x, 'big')
+
+            if isinstance(e, bytes):
+                e = int.from_bytes(e, 'big')
+
+            public_numbers = rsa.RSAPublicNumbers(n=n, e=e)
 
         assert public_numbers
         self.public_key = CredentialPublicKey(

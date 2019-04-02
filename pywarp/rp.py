@@ -114,7 +114,7 @@ class RelyingPartyManager:
             raise Exception("Unknown attestation format " + attestation["fmt"])
 
         hasher = hashes.Hash(hashes.SHA256(), backend=default_backend())
-        hasher.update(client_data_json)
+        hasher.update(client_data_json.encode())
         client_data_hash = hasher.finalize()
 
         credential = att_stmt.validate(

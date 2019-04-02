@@ -85,10 +85,10 @@ def test_register_packed_basic(fake, rp):
     client_data_json = json.dumps({
         'challenge': opts['challenge'],
         'type': 'webauthn.create',
-    }).encode()
+    })
 
     hasher = hashes.Hash(hashes.SHA256(), backend=default_backend())
-    hasher.update(client_data_json)
+    hasher.update(client_data_json.encode())
     verification = auth_data + hasher.finalize()
 
     att_stmt = {
@@ -135,5 +135,7 @@ def test_register_fido_u2f(rp):
                          b'w/OtrWVqaRBldtRUnS/WRPgE='
 
     rp.register(
-        b64decode(client_data_json), b64decode(attestation_object), email
+        b64decode(client_data_json).decode(),
+        b64decode(attestation_object),
+        email,
     )

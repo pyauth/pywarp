@@ -1,5 +1,6 @@
 import datetime
 import json
+from base64 import b64decode
 
 import cbor2
 from cryptography import x509
@@ -102,3 +103,14 @@ def test_register_packed_basic(fake, rp):
     })
 
     rp.register(client_data_json, attestation_object, email)
+
+
+def test_register_fido_u2f(rp):
+    email = 'rsa@pm.me'
+    rp.backend.save_challenge(email, b64decode(b'jXEy68weYcMGRsvvV6T3WFDBL1qPH3KMCpS67D3vCQE='), 'registration')
+    # opts = rp.get_registration_options(email=email)
+
+    client_data_json = b'eyJjaGFsbGVuZ2UiOiJqWEV5Njh3ZVljTUdSc3Z2VjZUM1dGREJMMXFQSDNLTUNwUzY3RDN2Q1FFIiwiY2xpZW50RXh0ZW5zaW9ucyI6e30sImhhc2hBbGdvcml0aG0iOiJTSEEtMjU2Iiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDoxMjM0IiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9'
+    attestation_object = b'o2NmbXRoZmlkby11MmZnYXR0U3RtdKJjc2lnWEgwRgIhAPxNeUCgZ5DXZI/0y1n+1A5FfgXHc3ALN9MYxeCs6SCGAiEA/Qb1eKmT898dZUY4YIHkXwOZs+gNySJ9w505mLCyH7xjeDVjgVj+MIH7MIHhoAMCAQICAQAwCgYIKoZIzj0EAwIwHDEaMBgGA1UEAwwRTm8gU3VjaCBBdXRob3JpdHkwHhcNMTYwMTAxMDAwMDAwWhcNMzYwMTAxMDAwMDAwWjAyMTAwLgYDVQQDDCdUaGlzIFUyRiBEZXZpY2UgRG9lcyBOb3QgRG8gQXR0ZXN0YXRpb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASVylYdcurkg+1xE1fjpGdyxZ0QQVZ4fq3GAd59yvuh1IL7pyIvR8HYlq3SwY5qcPzra1lamkQZXbUVJ0v1kT4BMAoGCCqGSM49BAMCAwkAMAYCAQMCAQFoYXV0aERhdGFYxEmWDeWIDoxodDQXD2R2YFuP5K65ooYyx5lc87qDHZdjQQAAAAAAAAAAAAAAAAAAAAAAAAAAAEA8V41AW45S1010MFd8flin4iESSfpcEcWlGHkPWbKas5ZyZ+oYYlNJKUlj1sVuGeZeYBrn4C1ogY2eXJxhnUeJpQECAyYgASFYIJXKVh1y6uSD7XETV+OkZ3LFnRBBVnh+rcYB3n3K+6HUIlgggvunIi9HwdiWrdLBjmpw/OtrWVqaRBldtRUnS/WRPgE='
+
+    rp.register(b64decode(client_data_json), b64decode(attestation_object), email)

@@ -30,8 +30,9 @@ class AttestationStatement:
 
 
 class PackedAttestationStatement(AttestationStatement):
-    def validate(self, auth_data, verification):
+    def validate(self, auth_data, client_data_hash):
         # https://www.w3.org/TR/webauthn/#packed-attestation
+        verification = auth_data.raw_auth_data + client_data_hash
         key = self.att_cert.public_key()
         key.verify(self.signature, verification, ec.ECDSA(hashes.SHA256()))
 
@@ -60,16 +61,17 @@ class TPMAttestationStatement(AttestationStatement):
 
 
 class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
-    def validate(self, authenticator_data, rp_id_hash, client_data_hash):
+    def validate(self, auth_data, client_data_hash):
         # See https://www.w3.org/TR/webauthn/#fido-u2f-attestation,
         # "Verification procedure"
-        credential = authenticator_data.credential
+        credential = auth_data.credential
         public_key_u2f = b'\x04' + credential.public_key.x + credential.public_key.y
-        verification_data = b'\x00' + rp_id_hash + client_data_hash + credential.id + public_key_u2f
+        verification = b'\x00' + auth_data.rp_id_hash + client_data_hash + credential.id + public_key_u2f
+        assert credential.public_key.ec_id == COSE.ELLIPTIC_CURVES.SECP256R1.value
         assert len(credential.public_key.x) == 32
         assert len(credential.public_key.y) == 32
-        self.cert_public_key.verify(self.signature, verification_data, ec.ECDSA(hashes.SHA256()))
-        key_id = x509.SubjectKeyIdentifier.from_public_key(self.cert_public_key).digest.hex()
+        self.public_key.verify(self.signature, verification, ec.ECDSA(hashes.SHA256()))
+        key_id = x509.SubjectKeyIdentifier.from_public_key(self.public_key).digest.hex()
         att_root_cert_chain = self.metadata_for_key_id(key_id)["attestationRootCertificates"]
 
         # TODO: implement full cert chain validation

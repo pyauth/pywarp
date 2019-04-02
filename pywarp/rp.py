@@ -115,10 +115,10 @@ class RelyingPartyManager:
 
         hasher = hashes.Hash(hashes.SHA256(), backend=default_backend())
         hasher.update(client_data_json)
-        verification = attestation["authData"] + hasher.finalize()
+        client_data_hash = hasher.finalize()
 
         credential = att_stmt.validate(
-            auth_data=auth_data, verification=verification,
+            auth_data=auth_data, client_data_hash=client_data_hash,
         )
 
         # TODO: ascertain user identity here

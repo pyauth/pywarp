@@ -11,7 +11,7 @@ class MemoryBackend(CredentialStorageBackend):
     def __init__(self):
         self.users = defaultdict(defaultdict)
 
-    def get_credential_by_email(self, email):
+    def get_credential(self, email):
         return self.users[email]["credential"]
 
     def save_credential(self, email, credential):

@@ -9,7 +9,7 @@ from cryptography.x509.oid import NameOID
 from .fido.metadata import FIDOMetadataClient
 
 ValidatedAttestation = namedtuple(
-    'ValidatedAttestation', 'type trust_path credential'
+    'ValidatedAttestation', 'type credential'
 )
 
 
@@ -48,11 +48,15 @@ class PackedAttestationStatement(AttestationStatement):
         o, *_ = subj.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)
         assert o.value
 
-        ou, *_ = subj.get_attributes_for_oid(NameOID. ORGANIZATIONAL_UNIT_NAME)
+        ou, *_ = subj.get_attributes_for_oid(NameOID.ORGANIZATIONAL_UNIT_NAME)
         assert ou.value == "Authenticator Attestation"
 
         cn, *_ = subj.get_attributes_for_oid(NameOID.COMMON_NAME)
         assert cn.value
+
+        return ValidatedAttestation(
+            type='basic', credential=auth_data.credential
+        )
 
 
 class TPMAttestationStatement(AttestationStatement):
@@ -67,7 +71,7 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
         credential = auth_data.credential
         public_key_u2f = b'\x04' + credential.public_key.x + credential.public_key.y
         verification = b'\x00' + auth_data.rp_id_hash + client_data_hash + credential.id + public_key_u2f
-        assert credential.public_key.ec_id == COSE.ELLIPTIC_CURVES.SECP256R1.value
+        # assert credential.public_key.ec_id == EllipticCurves.SECP256R1.value
         assert len(credential.public_key.x) == 32
         assert len(credential.public_key.y) == 32
         self.public_key.verify(self.signature, verification, ec.ECDSA(hashes.SHA256()))

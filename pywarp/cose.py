@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 
 
-class Params:
+class Params(IntEnum):
     """
     See https://www.iana.org/assignments/cose
     """

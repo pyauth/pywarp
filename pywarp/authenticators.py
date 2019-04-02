@@ -1,11 +1,11 @@
-from enum import IntFlag
+from enum import IntEnum
 
 import cbor2
 
 from .credentials import Credential
 
 
-class Flags(IntFlag):
+class Flags(IntEnum):
     UP = 1 << 0
     UV = 1 << 2
     AT = 1 << 6
@@ -17,7 +17,7 @@ class AuthenticatorData:
         self.raw_auth_data = data
 
         self.rp_id_hash = data[:32]
-        self.flags = Flags(data[32])
+        self.flags = data[32]
         self.sign_count = data[33:37]
 
         if self.attested_credential_data_included:
@@ -32,20 +32,12 @@ class AuthenticatorData:
 
     @property
     def user_present(self):
-        return Flags.UP in self.flags
+        return bool(Flags.UP & self.flags)
 
     @property
     def user_verified(self):
-        return Flags.UV in self.flags
+        return bool(Flags.UV & self.flags)
 
     @property
     def attested_credential_data_included(self):
-        return Flags.AT in self.flags
-
-        # self.rp_id_hash, flags, self.signature_counter = struct.unpack(">32s1sI", auth_data[:37])
-        # flags = [bool(int(i)) for i in format(ord(flags), "08b")]
-        # (self.extension_data_included,
-        #  self.attested_credential_data_included, _, _, _,
-        #  self.user_verified, _,
-        #  self.user_present) = flags
-        # self.credential = None
+        return bool(Flags.AT & self.flags)

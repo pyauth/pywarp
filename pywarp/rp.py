@@ -4,8 +4,11 @@ import json
 import re
 
 import cbor2
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 
-from .attestation import FIDOU2FAttestationStatement
+from .attestation import (FIDOU2FAttestationStatement,
+                          PackedAttestationStatement)
 from .authenticators import AuthenticatorData
 from .cose import Algorithms
 from .util import b64_encode, b64url_decode
@@ -80,12 +83,10 @@ class RelyingPartyManager:
         if valid_email and valid_email != email:
             raise Exception("Invalid email address")
 
-        client_data_hash = hashlib.sha256(client_data_json).digest()
         client_data = json.loads(client_data_json)
 
         assert client_data["type"] == "webauthn.create"
 
-        print("client data", client_data)
         expect_challenge = self.backend.get_challenge(
             email=email, type="registration"
         )
@@ -101,21 +102,25 @@ class RelyingPartyManager:
         assert auth_data.user_present
 
         if attestation["fmt"] == "fido-u2f":
-            # If user verification is required for this registration, verify
-            # that the User Verified bit of the flags in authData is set.
-            assert attestation["fmt"] == "fido-u2f"
-
-            att_stmt = FIDOU2FAttestationStatement(attestation['attStmt'])
-            validated = att_stmt.validate(auth_data,
-                                          rp_id_hash=auth_data.rp_id_hash,
-                                          client_data_hash=client_data_hash)
-            credential = validated.credential
+            att_stmt = FIDOU2FAttestationStatement(
+                att_stmt=attestation['attStmt']
+            )
 
         elif attestation["fmt"] == "packed":
-            pass
+            att_stmt = PackedAttestationStatement(
+                att_stmt=attestation['attStmt']
+            )
 
         else:
             raise Exception("Unknown attestation format " + attestation["fmt"])
+
+        hasher = hashes.Hash(hashes.SHA256(), backend=default_backend())
+        hasher.update(client_data_json)
+        verification = attestation["authData"] + hasher.finalize()
+
+        credential = att_stmt.validate(
+            auth_data=auth_data, verification=verification,
+        )
 
         # TODO: ascertain user identity here
         self.backend.save_credential(email=email, credential=credential)

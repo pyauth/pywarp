@@ -1,18 +1,58 @@
 from collections import namedtuple
 
-import cryptography.hazmat.backends
 from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec, padding
+from cryptography.x509.oid import NameOID
 
 from .fido.metadata import FIDOMetadataClient
 
 
-class AttestationStatement:
-    validated_attestation = namedtuple("ValidatedAttestation", "type trust_path credential")
+ValidatedAttestation = namedtuple(
+    'ValidatedAttestation', 'type trust_path credential'
+)
 
-    def __init__(self):
-        pass
+
+class AttestationStatement:
+    def __init__(self, att_stmt):
+        self.att_stmt = att_stmt
+
+        cert, *_ = att_stmt["x5c"]
+
+        self.att_cert = x509.load_der_x509_certificate(
+            cert, default_backend()
+        )
+        self.public_key = self.att_cert.public_key()
+        self.signature = att_stmt["sig"]
+
+    def validate(self, *args, **kwargs):
+        raise NotImplementedError()
+
+
+class PackedAttestationStatement(AttestationStatement):
+    def validate(self, auth_data, verification):
+        # https://www.w3.org/TR/webauthn/#packed-attestation
+        key = self.att_cert.public_key()
+        key.verify(self.signature, verification, ec.ECDSA(hashes.SHA256()))
+
+        # https://www.w3.org/TR/webauthn/#packed-attestation-cert-requirements
+        version = self.att_cert.version
+        assert version == x509.Version.v3
+
+        subj = self.att_cert.subject
+
+        c, *_ = subj.get_attributes_for_oid(NameOID.COUNTRY_NAME)
+        assert len(c.value) == 2
+
+        o, *_ = subj.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)
+        assert o.value
+
+        ou, *_ = subj.get_attributes_for_oid(NameOID. ORGANIZATIONAL_UNIT_NAME)
+        assert ou.value == "Authenticator Attestation"
+
+        cn, *_ = subj.get_attributes_for_oid(NameOID.COMMON_NAME)
+        assert cn.value
 
 
 class TPMAttestationStatement(AttestationStatement):
@@ -21,16 +61,9 @@ class TPMAttestationStatement(AttestationStatement):
 
 
 class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
-    def __init__(self, att_stmt):
-        self.att_stmt = att_stmt
-        assert len(self.att_stmt["x5c"]) == 1
-        der_cert = att_stmt["x5c"][0]
-        self.att_cert = x509.load_der_x509_certificate(der_cert, cryptography.hazmat.backends.default_backend())
-        self.cert_public_key = self.att_cert.public_key()
-        self.signature = att_stmt["sig"]
-
     def validate(self, authenticator_data, rp_id_hash, client_data_hash):
-        # See https://www.w3.org/TR/webauthn/#fido-u2f-attestation, "Verification procedure"
+        # See https://www.w3.org/TR/webauthn/#fido-u2f-attestation,
+        # "Verification procedure"
         credential = authenticator_data.credential
         public_key_u2f = b'\x04' + credential.public_key.x + credential.public_key.y
         verification_data = b'\x00' + rp_id_hash + client_data_hash + credential.id + public_key_u2f
@@ -45,8 +78,8 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
         # See https://github.com/pyca/cryptography/issues/2381
         # See https://github.com/wbond/certvalidator
         assert len(att_root_cert_chain) == 1
-        att_root_cert = x509.load_der_x509_certificate(att_root_cert_chain[0].encode(),
-                                                       cryptography.hazmat.backends.default_backend())
+        att_root_cert = x509.load_pem_x509_certificate(add_pem_header(att_root_cert_chain[0]).encode(),
+                                                       backend=default_backend())
         att_root_cert.public_key().verify(self.att_cert.signature,
                                           self.att_cert.tbs_certificate_bytes,
                                           padding.PKCS1v15(),

@@ -31,7 +31,7 @@ python-versions = "*"
 version = "4.1.2"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
@@ -50,7 +50,7 @@ version = "1.12.2"
 pycparser = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Universal encoding detector for Python 2 and 3"
 name = "chardet"
 optional = false
@@ -127,7 +127,7 @@ python = "<3.5"
 version = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
 optional = false
@@ -208,7 +208,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.1.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "JSON Web Token implementation in Python"
 name = "pyjwt"
 optional = false
@@ -276,7 +276,7 @@ version = "2.8.0"
 six = ">=1.5"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python HTTP for Humans."
 name = "requests"
 optional = false
@@ -324,7 +324,7 @@ python-versions = "*"
 version = "3.6.6"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
 optional = false
@@ -340,7 +340,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.33.1"
 
 [metadata]
-content-hash = "0bc6dfc4d1159bf51c1d9fe84b980d4a5addae34f9b815dbf1cc32ce3ea035ea"
+content-hash = "4456eea49a8f2651ea08bbbb1531f4aeb37152a7547c7e64f60338a75780ef68"
 python-versions = "^3.4"
 
 [metadata.hashes]

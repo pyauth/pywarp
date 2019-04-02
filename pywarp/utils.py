@@ -1,5 +1,7 @@
 import base64
 
+_urlsafe_translate = bytes.maketrans(b'-_', b'+/')
+
 
 def _restore_padding(b):
     """
@@ -10,7 +12,7 @@ def _restore_padding(b):
     >>> _restore_padding(b"TWFu")
     b'TWFu'
     """
-    return b + b'=' * (-len(b) % 4)
+    return b.translate(_urlsafe_translate) + b'=' * (-len(b) % 4)
 
 
 def b64encode(b):

@@ -9,9 +9,9 @@ from cryptography.hazmat.primitives import hashes
 from .attestation import (FIDOU2FAttestationStatement,
                           PackedAttestationStatement)
 from .authenticators import AuthenticatorData
+from .compat import token_bytes
 from .cose import Algorithms
-from .util import b64_encode, b64url_decode
-from .util.compat import token_bytes
+from .utils import b64decode, b64encode
 
 
 class RelyingPartyManager:
@@ -27,13 +27,13 @@ class RelyingPartyManager:
         challenge = token_bytes(32)
 
         options = {
-            "challenge": b64_encode(challenge),
+            "challenge": b64encode(challenge),
             "rp": {
                 "name": self.rp_name,
                 "id": self.rp_id,
             },
             "user": {
-                "id": b64_encode(email.encode()),
+                "id": b64encode(email.encode()),
                 "name": email,
                 "displayName": display_name if display_name else email,
                 "icon": icon,
@@ -59,10 +59,10 @@ class RelyingPartyManager:
         challenge = token_bytes(32)
 
         options = {
-            "challenge": b64_encode(challenge),
+            "challenge": b64encode(challenge),
             "timeout": 60 * 1000,
             "allowCredentials": [
-                {"type": "public-key", "id": b64_encode(credential.id)}
+                {"type": "public-key", "id": b64encode(credential.id)},
             ],
         }
 
@@ -89,7 +89,7 @@ class RelyingPartyManager:
         expect_challenge = self.backend.get_challenge(
             email=email, type="registration"
         )
-        assert b64url_decode(client_data["challenge"]) == expect_challenge
+        assert b64decode(client_data["challenge"]) == expect_challenge
 
         # Verify that the value of C.origin matches the Relying Party's origin.
         if self.rp_id:
@@ -141,7 +141,7 @@ class RelyingPartyManager:
         client_data = json.loads(client_data_json)
         assert client_data["type"] == "webauthn.get"
         expect_challenge = self.backend.get_challenge(email=email, type="authentication")
-        assert b64url_decode(client_data["challenge"]) == expect_challenge
+        assert b64decode(client_data["challenge"]) == expect_challenge
         print("expect RP ID:", self.rp_id)
         if self.rp_id:
             assert "https://" + self.rp_id == client_data["origin"]

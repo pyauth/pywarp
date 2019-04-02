@@ -30,7 +30,7 @@ class AttestationStatement:
 
 
 class PackedAttestationStatement(AttestationStatement):
-    def validate(self, auth_data, client_data_hash):
+    def validate(self, auth_data, client_data_hash, validate_cert_attributes):
         # https://www.w3.org/TR/webauthn/#packed-attestation
         verification = auth_data.raw_auth_data + client_data_hash
         key = self.att_cert.public_key()
@@ -40,19 +40,20 @@ class PackedAttestationStatement(AttestationStatement):
         version = self.att_cert.version
         assert version == x509.Version.v3
 
-        subj = self.att_cert.subject
+        if validate_cert_attributes:
+            subj = self.att_cert.subject
 
-        c, *_ = subj.get_attributes_for_oid(NameOID.COUNTRY_NAME)
-        assert len(c.value) == 2
+            c, *_ = subj.get_attributes_for_oid(NameOID.COUNTRY_NAME)
+            assert len(c.value) == 2
 
-        o, *_ = subj.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)
-        assert o.value
+            o, *_ = subj.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)
+            assert o.value
 
-        ou, *_ = subj.get_attributes_for_oid(NameOID.ORGANIZATIONAL_UNIT_NAME)
-        assert ou.value == "Authenticator Attestation"
+            ou, *_ = subj.get_attributes_for_oid(NameOID.ORGANIZATIONAL_UNIT_NAME)
+            assert ou.value == "Authenticator Attestation"
 
-        cn, *_ = subj.get_attributes_for_oid(NameOID.COMMON_NAME)
-        assert cn.value
+            cn, *_ = subj.get_attributes_for_oid(NameOID.COMMON_NAME)
+            assert cn.value
 
         return ValidatedAttestation(
             type='basic', credential=auth_data.credential

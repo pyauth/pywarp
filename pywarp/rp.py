@@ -72,7 +72,10 @@ class RelyingPartyManager:
         return options
 
     # https://www.w3.org/TR/webauthn/#registering-a-new-credential
-    def register(self, client_data_json, attestation_object, email):
+    def register(
+        self, client_data_json, attestation_object, email,
+        validate_cert_attributes=True,
+    ):
         """Store the credential public key and related metadata on the server
         using the associated storage backend
         """
@@ -119,6 +122,7 @@ class RelyingPartyManager:
 
         credential = att_stmt.validate(
             auth_data=auth_data, client_data_hash=client_data_hash,
+            validate_cert_attributes=validate_cert_attributes,
         )
 
         # TODO: ascertain user identity here

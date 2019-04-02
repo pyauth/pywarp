@@ -1,6 +1,5 @@
 import datetime
 import json
-from base64 import b64decode
 
 import cbor2
 import pytest
@@ -11,10 +10,15 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509 import NameOID
 
+from ..pywarp.utils import b64decode
+
 
 def test_get_registration_options(fake, rp):
     email = fake.email()
     opts = rp.get_registration_options(email=email)
+
+    challenge = rp.backend.get_challenge(email, 'registration')
+    assert b64decode(opts['challenge']) == challenge
 
     user = opts['user']
     assert user['name'] == email
@@ -109,7 +113,8 @@ def test_register_packed_basic(fake, rp):
 @pytest.mark.skip(reason="can't test this without mocking fido validation")
 def test_register_fido_u2f(rp):
     email = 'rsa@pm.me'
-    rp.backend.save_challenge(email, b64decode(b'jXEy68weYcMGRsvvV6T3WFDBL1qPH3KMCpS67D3vCQE='), 'registration')
+    challenge = b64decode('jXEy68weYcMGRsvvV6T3WFDBL1qPH3KMCpS67D3vCQE=')
+    rp.backend.save_challenge(email, challenge, 'registration')
     # opts = rp.get_registration_options(email=email)
 
     client_data_json = b'eyJjaGFsbGVuZ2UiOiJqWEV5Njh3ZVljTUdSc3Z2VjZUM1dGREJ' \

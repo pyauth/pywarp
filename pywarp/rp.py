@@ -33,7 +33,7 @@ class RelyingPartyManager:
                 "id": self.rp_id,
             },
             "user": {
-                "id": b64encode(email.encode()),
+                "id": b64encode(email),
                 "name": email,
                 "displayName": display_name if display_name else email,
                 "icon": icon,
@@ -79,13 +79,13 @@ class RelyingPartyManager:
         """Store the credential public key and related metadata on the server
         using the associated storage backend
         """
-        attestation = cbor2.loads(attestation_object)
+        attestation = cbor2.loads(b64decode(attestation_object))
 
         _, valid_email = parseaddr(email)
         if valid_email and valid_email != email:
             raise Exception("Invalid email address")
 
-        client_data = json.loads(client_data_json)
+        client_data = json.loads(b64decode(client_data_json))
 
         assert client_data["type"] == "webauthn.create"
 

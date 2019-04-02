@@ -10,7 +10,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509 import NameOID
 
-from ..pywarp.utils import b64decode
+from ..pywarp.utils import b64decode, b64encode
 
 
 def test_get_registration_options(fake, rp):
@@ -86,10 +86,10 @@ def test_register_packed_basic(fake, rp):
         .not_valid_after(now + datetime.timedelta(days=1)) \
         .sign(key, hashes.SHA256(), default_backend())
 
-    client_data_json = json.dumps({
+    client_data_json = b64encode(json.dumps({
         'challenge': opts['challenge'],
         'type': 'webauthn.create',
-    })
+    }))
 
     hasher = hashes.Hash(hashes.SHA256(), backend=default_backend())
     hasher.update(client_data_json.encode())
@@ -101,11 +101,11 @@ def test_register_packed_basic(fake, rp):
         'x5c': [att_cert.public_bytes(Encoding.DER)],
     }
 
-    attestation_object = cbor2.dumps({
+    attestation_object = b64encode(cbor2.dumps({
         'attStmt': att_stmt,
         'authData': auth_data,
         'fmt': 'packed',
-    })
+    }))
 
     rp.register(client_data_json, attestation_object, email)
 

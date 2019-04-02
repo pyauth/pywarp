@@ -11,16 +11,15 @@ class CredentialPublicKey:
     def __init__(self, cbor_cose_key):
         self.cbor_cose_key = cbor_cose_key
         COSE_key = cbor2.loads(cbor_cose_key)
-        print("Init CPK from COSE", COSE_key)
-        self.key_type = COSE_key[Params.KTY]
-        self.algorithm = COSE_key[Params.ALG]
-        if self.key_type == KeyTypes.EC2:
-            self.ec_id = COSE_key[EC2Params.Curve]
-            self.x = COSE_key[EC2Params.X]
-            self.y = COSE_key[EC2Params.Y]
-        elif self.key_type == KeyTypes.RSA:
-            self.n = COSE_key[RSAParams.N]
-            self.e = COSE_key[RSAParams.E]
+        self.key_type = COSE_key[COSE.KTY]
+        self.algorithm = COSE_key[COSE.ALG]
+        if self.key_type == COSE.KEY_TYPES.EC2:
+            self.ec_id = COSE_key[COSE.KEY_TYPE_PARAMS.EC2.EC_ID]
+            self.x = COSE_key[COSE.KEY_TYPE_PARAMS.EC2.X]
+            self.y = COSE_key[COSE.KEY_TYPE_PARAMS.EC2.Y]
+        elif self.key_type == COSE.KEY_TYPES.RSA:
+            self.n = COSE_key[COSE.KEY_TYPE_PARAMS.RSA.N]
+            self.e = COSE_key[COSE.KEY_TYPE_PARAMS.RSA.E]
 
     def __bytes__(self):
         return self.cbor_cose_key

@@ -1,5 +1,4 @@
 from email.utils import parseaddr
-import hashlib
 import json
 import re
 
@@ -60,7 +59,7 @@ class RelyingPartyManager:
         challenge = token_bytes(32)
 
         options = {
-            "challenge": challenge,
+            "challenge": b64_encode(challenge),
             "timeout": 60 * 1000,
             "allowCredentials": [
                 {"type": "public-key", "id": b64_encode(credential.id)}
@@ -136,7 +135,9 @@ class RelyingPartyManager:
         if valid_email and valid_email != email:
             raise Exception("Invalid email address")
 
-        client_data_hash = hashlib.sha256(client_data_json).digest()
+        hasher = hashes.Hash(hashes.SHA256(), backend=default_backend())
+        hasher.update(client_data_json)
+        client_data_hash = hasher.finalize()
         client_data = json.loads(client_data_json)
         assert client_data["type"] == "webauthn.get"
         expect_challenge = self.backend.get_challenge(email=email, type="authentication")

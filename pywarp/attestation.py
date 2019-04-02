@@ -8,7 +8,6 @@ from cryptography.x509.oid import NameOID
 
 from .fido.metadata import FIDOMetadataClient
 
-
 ValidatedAttestation = namedtuple(
     'ValidatedAttestation', 'type trust_path credential'
 )

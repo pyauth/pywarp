@@ -51,9 +51,3 @@ def b64_restore_padding(unpadded_b64_string):
 
 def add_pem_header(bare_base64_cert):
     return PEM_HEADER + "\n" + textwrap.fill(bare_base64_cert, 64) + "\n" + PEM_FOOTER
-
-
-class Placeholder:
-    """
-    Used to indicate a value that must be replaced with response-specific data before being sent over the wire.
-    """

@@ -41,7 +41,6 @@ class Credential:
 
         self.key_type = public_key[Params.KTY]
         self.algorithm = public_key[Params.ALG]
-        public_numbers = None
 
         if self.key_type == KeyTypes.EC2:
             curve = EllipticCurves[public_key[EC2Params.Curve]]
@@ -53,7 +52,7 @@ class Credential:
             if isinstance(y, bytes):
                 y = int.from_bytes(y, 'big')
 
-            public_numbers = ec.EllipticCurvePublicNumbers(
+            self.public_numbers = ec.EllipticCurvePublicNumbers(
                 curve=curve(), x=x, y=y
             )
 
@@ -66,11 +65,10 @@ class Credential:
             if isinstance(e, bytes):
                 e = int.from_bytes(e, 'big')
 
-            public_numbers = rsa.RSAPublicNumbers(n=n, e=e)
+            self.public_numbers = rsa.RSAPublicNumbers(n=n, e=e)
 
-        assert public_numbers
         self.public_key = CredentialPublicKey(
-            id=id, public_key=public_numbers.public_key(default_backend())
+            id=id, public_key=self.public_numbers.public_key(default_backend())
         )
 
     def verify(self, signature, data):

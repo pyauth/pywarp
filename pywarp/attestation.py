@@ -78,7 +78,7 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
         # "Verification procedure"
         credential = auth_data.credential
 
-        public_numbers = credential.public_key.public_numbers()
+        public_numbers = credential.public_numbers
         assert byte_length(public_numbers.x) == 32
         assert byte_length(public_numbers.y) == 32
 

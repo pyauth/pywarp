@@ -2,7 +2,6 @@ import datetime
 import json
 
 import cbor2
-import pytest
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -110,37 +109,34 @@ def test_register_packed_basic(fake, rp):
     rp.register(client_data_json, attestation_object, email)
 
 
-@pytest.mark.skip(reason="can't test this without mocking fido validation")
 def test_register_fido_u2f(rp):
     email = 'rsa@pm.me'
     challenge = b64decode('jXEy68weYcMGRsvvV6T3WFDBL1qPH3KMCpS67D3vCQE=')
     rp.backend.save_challenge(email, challenge, 'registration')
     # opts = rp.get_registration_options(email=email)
 
-    client_data_json = b'eyJjaGFsbGVuZ2UiOiJqWEV5Njh3ZVljTUdSc3Z2VjZUM1dGREJ' \
-                       b'MMXFQSDNLTUNwUzY3RDN2Q1FFIiwiY2xpZW50RXh0ZW5zaW9ucy' \
-                       b'I6e30sImhhc2hBbGdvcml0aG0iOiJTSEEtMjU2Iiwib3JpZ2luI' \
-                       b'joiaHR0cDovL2xvY2FsaG9zdDoxMjM0IiwidHlwZSI6IndlYmF1' \
-                       b'dGhuLmNyZWF0ZSJ9'
-    attestation_object = b'o2NmbXRoZmlkby11MmZnYXR0U3RtdKJjc2lnWEgwRgIhAPxNe' \
-                         b'UCgZ5DXZI/0y1n+1A5FfgXHc3ALN9MYxeCs6SCGAiEA/Qb1eK' \
-                         b'mT898dZUY4YIHkXwOZs+gNySJ9w505mLCyH7xjeDVjgVj+MIH' \
-                         b'7MIHhoAMCAQICAQAwCgYIKoZIzj0EAwIwHDEaMBgGA1UEAwwR' \
-                         b'Tm8gU3VjaCBBdXRob3JpdHkwHhcNMTYwMTAxMDAwMDAwWhcNM' \
-                         b'zYwMTAxMDAwMDAwWjAyMTAwLgYDVQQDDCdUaGlzIFUyRiBEZX' \
-                         b'ZpY2UgRG9lcyBOb3QgRG8gQXR0ZXN0YXRpb24wWTATBgcqhkj' \
-                         b'OPQIBBggqhkjOPQMBBwNCAASVylYdcurkg+1xE1fjpGdyxZ0Q' \
-                         b'QVZ4fq3GAd59yvuh1IL7pyIvR8HYlq3SwY5qcPzra1lamkQZX' \
-                         b'bUVJ0v1kT4BMAoGCCqGSM49BAMCAwkAMAYCAQMCAQFoYXV0aE' \
-                         b'RhdGFYxEmWDeWIDoxodDQXD2R2YFuP5K65ooYyx5lc87qDHZd' \
-                         b'jQQAAAAAAAAAAAAAAAAAAAAAAAAAAAEA8V41AW45S1010MFd8' \
-                         b'flin4iESSfpcEcWlGHkPWbKas5ZyZ+oYYlNJKUlj1sVuGeZeY' \
-                         b'Brn4C1ogY2eXJxhnUeJpQECAyYgASFYIJXKVh1y6uSD7XETV+' \
-                         b'OkZ3LFnRBBVnh+rcYB3n3K+6HUIlgggvunIi9HwdiWrdLBjmp' \
-                         b'w/OtrWVqaRBldtRUnS/WRPgE='
+    client_data_json = \
+        'eyJjaGFsbGVuZ2UiOiJqWEV5Njh3ZVljTUdSc3Z2VjZUM1dGREJMMXFQSDNLTUNwUzY' \
+        '3RDN2Q1FFIiwiY2xpZW50RXh0ZW5zaW9ucyI6e30sImhhc2hBbGdvcml0aG0iOiJTSE' \
+        'EtMjU2Iiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDoxMjM0IiwidHlwZSI6IndlY' \
+        'mF1dGhuLmNyZWF0ZSJ9'
+    attestation_object = \
+        b'o2NmbXRoZmlkby11MmZnYXR0U3RtdKJjc2lnWEgwRgIhAPxNeUCgZ5DXZI/0y1n+1A' \
+        b'5FfgXHc3ALN9MYxeCs6SCGAiEA/Qb1eKmT898dZUY4YIHkXwOZs+gNySJ9w505mLCy' \
+        b'H7xjeDVjgVj+MIH7MIHhoAMCAQICAQAwCgYIKoZIzj0EAwIwHDEaMBgGA1UEAwwRTm' \
+        b'8gU3VjaCBBdXRob3JpdHkwHhcNMTYwMTAxMDAwMDAwWhcNMzYwMTAxMDAwMDAwWjAy' \
+        b'MTAwLgYDVQQDDCdUaGlzIFUyRiBEZXZpY2UgRG9lcyBOb3QgRG8gQXR0ZXN0YXRpb2' \
+        b'4wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASVylYdcurkg+1xE1fjpGdyxZ0QQVZ4' \
+        b'fq3GAd59yvuh1IL7pyIvR8HYlq3SwY5qcPzra1lamkQZXbUVJ0v1kT4BMAoGCCqGSM' \
+        b'49BAMCAwkAMAYCAQMCAQFoYXV0aERhdGFYxEmWDeWIDoxodDQXD2R2YFuP5K65ooYy' \
+        b'x5lc87qDHZdjQQAAAAAAAAAAAAAAAAAAAAAAAAAAAEA8V41AW45S1010MFd8flin4i' \
+        b'ESSfpcEcWlGHkPWbKas5ZyZ+oYYlNJKUlj1sVuGeZeYBrn4C1ogY2eXJxhnUeJpQEC' \
+        b'AyYgASFYIJXKVh1y6uSD7XETV+OkZ3LFnRBBVnh+rcYB3n3K+6HUIlgggvunIi9Hwd' \
+        b'iWrdLBjmpw/OtrWVqaRBldtRUnS/WRPgE='
 
     rp.register(
-        b64decode(client_data_json).decode(),
-        b64decode(attestation_object),
+        client_data_json,
+        attestation_object,
         email,
+        validate_cert_attributes=False,
     )

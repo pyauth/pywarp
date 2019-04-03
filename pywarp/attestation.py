@@ -9,8 +9,12 @@ from cryptography.x509.oid import NameOID
 from .fido.metadata import FIDOMetadataClient
 
 ValidatedAttestation = namedtuple(
-    'ValidatedAttestation', 'type credential'
+    'ValidatedAttestation', 'credential trust_path type'
 )
+
+
+def byte_length(n):
+    return (n.bit_length() + 7) // 8
 
 
 class AttestationStatement:
@@ -40,6 +44,7 @@ class PackedAttestationStatement(AttestationStatement):
         version = self.att_cert.version
         assert version == x509.Version.v3
 
+        attestation_type = 'basic'
         if validate_cert_attributes:
             subj = self.att_cert.subject
 
@@ -58,7 +63,7 @@ class PackedAttestationStatement(AttestationStatement):
             assert cn.value
 
         return ValidatedAttestation(
-            type='basic', credential=auth_data.credential
+            auth_data.credential, 'x5c', attestation_type,
         )
 
 
@@ -72,25 +77,29 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
         # See https://www.w3.org/TR/webauthn/#fido-u2f-attestation,
         # "Verification procedure"
         credential = auth_data.credential
-        public_key_u2f = b''.join(
+
+        public_numbers = credential.public_key.public_numbers()
+        assert byte_length(public_numbers.x) == 32
+        assert byte_length(public_numbers.y) == 32
+
+        public_key_u2f = b''.join([
             b'\x04',
-            credential.public_key.x,
-            credential.public_key.y,
-        )
-        verification = b''.join(
+            public_numbers.x.to_bytes(32, 'big'),
+            public_numbers.y.to_bytes(32, 'big'),
+        ])
+
+        verification = b''.join([
             b'\x00',
             auth_data.rp_id_hash,
             client_data_hash,
             credential.id,
             public_key_u2f,
-        )
-        # assert credential.public_key.ec_id == EllipticCurves.SECP256R1.value
-        assert len(credential.public_key.x) == 32
-        assert len(credential.public_key.y) == 32
-        self.public_key.verify(
-            self.signature, verification, ec.ECDSA(hashes.SHA256())
-        )
+        ])
 
+        key = self.att_cert.public_key()
+        key.verify(self.signature, verification, ec.ECDSA(hashes.SHA256()))
+
+        attestation_type = 'basic'
         if validate_cert_attributes:
             key_id = x509.SubjectKeyIdentifier.from_public_key(self.public_key)
             metadata = self.metadata_for_key_id(key_id.digest.hex())
@@ -111,4 +120,4 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
                 self.att_cert.signature_hash_algorithm
             )
 
-        return self.validated_attestation(type="basic", credential=credential)
+        return ValidatedAttestation(credential, 'x5c', attestation_type)

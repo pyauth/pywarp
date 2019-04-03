@@ -26,7 +26,6 @@ class AttestationStatement:
         self.att_cert = x509.load_der_x509_certificate(
             cert, default_backend()
         )
-        self.public_key = self.att_cert.public_key()
         self.signature = att_stmt["sig"]
 
     def validate(self, *args, **kwargs):
@@ -101,7 +100,7 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
 
         attestation_type = 'basic'
         if validate_cert_attributes:
-            key_id = x509.SubjectKeyIdentifier.from_public_key(self.public_key)
+            key_id = x509.SubjectKeyIdentifier.from_public_key(key)
             metadata = self.metadata_for_key_id(key_id.digest.hex())
             att_root_cert_chain = metadata["attestationRootCertificates"]
 

@@ -85,7 +85,8 @@ class RelyingPartyManager:
         if valid_email and valid_email != email:
             raise Exception("Invalid email address")
 
-        client_data = json.loads(b64decode(client_data_json))
+        client_data_json = b64decode(client_data_json)
+        client_data = json.loads(client_data_json)
 
         assert client_data["type"] == "webauthn.create"
 
@@ -117,7 +118,7 @@ class RelyingPartyManager:
             raise Exception("Unknown attestation format " + attestation["fmt"])
 
         hasher = hashes.Hash(hashes.SHA256(), backend=default_backend())
-        hasher.update(client_data_json.encode())
+        hasher.update(client_data_json)
         client_data_hash = hasher.finalize()
 
         credential = att_stmt.validate(

@@ -4,12 +4,8 @@ from functools import lru_cache
 
 import cryptography.hazmat.backends
 import jwt
+import requests
 from cryptography import x509
-
-try:
-    from botocore.vendored import requests
-except ImportError:
-    import requests
 
 
 class FIDOMetadataClient:

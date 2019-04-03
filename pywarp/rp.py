@@ -121,13 +121,15 @@ class RelyingPartyManager:
         hasher.update(client_data_json)
         client_data_hash = hasher.finalize()
 
-        credential = att_stmt.validate(
+        validated_attestation = att_stmt.validate(
             auth_data=auth_data, client_data_hash=client_data_hash,
             validate_cert_attributes=validate_cert_attributes,
         )
 
         # TODO: ascertain user identity here
-        self.backend.save_credential(email=email, credential=credential)
+        self.backend.save_credential(
+            email=email, credential=validated_attestation.credential
+        )
         return {"registered": True}
 
     # https://www.w3.org/TR/webauthn/#verifying-assertion

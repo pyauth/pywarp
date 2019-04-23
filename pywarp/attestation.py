@@ -14,6 +14,14 @@ ValidatedAttestation = namedtuple(
 
 
 def byte_length(n):
+    """
+    >>> byte_length(2 ** 0)
+    1
+    >>> byte_length(2 ** 8)
+    2
+    >>> byte_length(2 ** 32)
+    5
+    """
     return (n.bit_length() + 7) // 8
 
 

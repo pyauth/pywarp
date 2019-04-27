@@ -1,69 +1,60 @@
-import re, json, copy, struct, hashlib, textwrap
+import re, json, hashlib
 
 import cbor2
 
 from .attestation import FIDOU2FAttestationStatement
 from .authenticators import AuthenticatorData
 from .cose import COSE
-from .util import Placeholder, b64_encode, b64url_decode
+from .util import b64_encode, b64url_decode
 from .util.compat import token_bytes
 
+
 class RelyingPartyManager:
-    registration_options = {
-        "challenge": Placeholder(),
-        "rp": {
-            "name": Placeholder()
-        },
-        "user": {
-            "id": Placeholder(),
-            "name": Placeholder(),
-            "displayName": Placeholder(),
-            "icon": Placeholder()
-        },
-        "pubKeyCredParams": [
-            {
-                "type": "public-key",
-                "alg": COSE.ALGORITHMS.ES256
-            }
-        ],
-        "timeout": 60000,  # 1 minute
-        "excludeCredentials": [],  # No exclude list of PKCredDescriptors
-        "attestation": "direct",
-        "extensions": {"loc": True}  # Include location information in attestation
-    }
-
-    authentication_options = {
-        "challenge": Placeholder(),
-        "timeout": 60000,  # 1 minute
-        "allowCredentials": []
-    }
-
     def __init__(self, rp_name, rp_id=None, credential_storage_backend=None):
         self.storage_backend = credential_storage_backend
         self.rp_name = rp_name
         self.rp_id = rp_id
 
-    def get_registration_options(self, email):
+    def get_registration_options(self, email, display_name=None, icon=None):
         "Get challenge parameters that will be passed to the user agent's navigator.credentials.get() method"
         challenge = token_bytes(32)
-        options = copy.deepcopy(self.registration_options)
-        options["rp"]["name"] = self.rp_name
-        if self.rp_id:
-            options["rp"]["id"] = self.rp_id
-        options["user"]["name"] = email
-        options["user"]["displayName"] = "User Display Name FIXME"
-        options["user"]["icon"] = None
-        options["user"]["id"] = b64_encode(email.encode())
-        options["challenge"] = b64_encode(challenge)
+
+        options = {
+            "challenge": b64_encode(challenge),
+            "rp": {
+                "name": self.rp_name,
+                "id": self.rp_id,
+            },
+            "user": {
+                "id": b64_encode(email.encode()),
+                "name": email,
+                "displayName": display_name if display_name else email,
+                "icon": icon,
+            },
+            "pubKeyCredParams": [
+                {"type": "public-key", "alg": COSE.ALGORITHMS.ES256},
+            ],
+            "timeout": 60 * 1000,
+            "excludeCredentials": [],
+            "attestation": "direct",
+            "extensions": {"loc": True}
+        }
+
         self.storage_backend.save_challenge_for_user(email=email, challenge=challenge, type="registration")
         return options
 
     def get_authentication_options(self, email):
-        challenge = token_bytes(32)
         credential = self.storage_backend.get_credential_by_email(email)
-        options = copy.deepcopy(self.authentication_options)
-        options["challenge"] = b64_encode(challenge)
-        options["allowCredentials"] = [{"type": "public-key", "id": b64_encode(credential.id)}]
+        challenge = token_bytes(32)
+
+        options = {
+            "challenge": challenge,
+            "timeout": 60 * 1000,
+            "allowCredentials": [
+                {"type": "public-key", "id": b64_encode(credential.id)}
+            ],
+        }
+
         self.storage_backend.save_challenge_for_user(email=email, challenge=challenge, type="authentication")
         return options
 

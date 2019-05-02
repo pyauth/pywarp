@@ -5,8 +5,6 @@ import cryptography.hazmat.backends
 from cryptography import x509
 import jwt
 
-from ..util import add_pem_header
-
 try:
     from botocore.vendored import requests
 except ImportError:
@@ -23,7 +21,7 @@ class FIDOMetadataClient:
             res.raise_for_status()
             jwt_header = jwt.get_unverified_header(res.content)
             assert jwt_header["alg"] == "ES256"
-            cert = x509.load_pem_x509_certificate(add_pem_header(jwt_header["x5c"][0]).encode(),
+            cert = x509.load_der_x509_certificate(jwt_header["x5c"][0].encode(),
                                                   cryptography.hazmat.backends.default_backend())
             self._metadata_toc = jwt.decode(res.content, key=cert.public_key(), algorithms=["ES256"])
         return self._metadata_toc

@@ -6,7 +6,6 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec, padding
 
 from .fido.metadata import FIDOMetadataClient
-from .util import add_pem_header
 
 class AttestationStatement:
     validated_attestation = namedtuple("ValidatedAttestation", "type trust_path credential")
@@ -43,7 +42,7 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
         # See https://github.com/pyca/cryptography/issues/2381
         # See https://github.com/wbond/certvalidator
         assert len(att_root_cert_chain) == 1
-        att_root_cert = x509.load_pem_x509_certificate(add_pem_header(att_root_cert_chain[0]).encode(),
+        att_root_cert = x509.load_der_x509_certificate(att_root_cert_chain[0].encode(),
                                                        cryptography.hazmat.backends.default_backend())
         att_root_cert.public_key().verify(self.att_cert.signature,
                                           self.att_cert.tbs_certificate_bytes,

@@ -1,8 +1,5 @@
 import textwrap, base64
 
-PEM_HEADER = "-----BEGIN CERTIFICATE-----"
-PEM_FOOTER = "-----END CERTIFICATE-----"
-
 def b64_encode(b):
     return base64.b64encode(b).decode()
 
@@ -17,9 +14,6 @@ def b64url_decode(s):
 
 def b64_restore_padding(unpadded_b64_string):
     return unpadded_b64_string + '=' * (-len(unpadded_b64_string) % 4)
-
-def add_pem_header(bare_base64_cert):
-    return PEM_HEADER + "\n" + textwrap.fill(bare_base64_cert, 64) + "\n" + PEM_FOOTER
 
 class Placeholder:
     """

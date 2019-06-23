@@ -5,7 +5,6 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec, padding
 
-from .cose import COSE
 from .fido.metadata import FIDOMetadataClient
 from .util import add_pem_header
 
@@ -33,7 +32,6 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
         credential = authenticator_data.credential
         public_key_u2f = b'\x04' + credential.public_key.x + credential.public_key.y
         verification_data = b'\x00' + rp_id_hash + client_data_hash + credential.id + public_key_u2f
-        assert credential.public_key.ec_id == COSE.ELLIPTIC_CURVES.SECP256R1.value
         assert len(credential.public_key.x) == 32
         assert len(credential.public_key.y) == 32
         self.cert_public_key.verify(self.signature, verification_data, ec.ECDSA(hashes.SHA256()))

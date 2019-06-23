@@ -4,7 +4,7 @@ import cbor2
 
 from .attestation import FIDOU2FAttestationStatement
 from .authenticators import AuthenticatorData
-from .cose import COSE
+from .cose import Algorithms
 from .util import b64_encode, b64url_decode
 from .util.compat import token_bytes
 
@@ -32,7 +32,9 @@ class RelyingPartyManager:
                 "icon": icon,
             },
             "pubKeyCredParams": [
-                {"type": "public-key", "alg": COSE.ALGORITHMS.ES256},
+                {"type": "public-key", "alg": Algorithms.ES256},
+                {"type": "public-key", "alg": Algorithms.ES384},
+                {"type": "public-key", "alg": Algorithms.ES512},
             ],
             "timeout": 60 * 1000,
             "excludeCredentials": [],

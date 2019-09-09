@@ -1,20 +1,20 @@
+dist: xenial
 language: python
 
 python:
   - 3.4
   - 3.5
   - 3.6
+  - 3.7
 
 before_install:
-  - pip install --quiet --upgrade pip codecov
+  - pip install --quiet --upgrade pip codecov poetry
 
 install:
-  - make install
+  - poetry install
 
 script:
-  - make test
+  - poetry run pytest
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-sudo: false

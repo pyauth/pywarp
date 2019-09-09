@@ -1,14 +1,12 @@
-import json, base64
+import base64
+import json
 from functools import lru_cache
 
 import cryptography.hazmat.backends
-from cryptography import x509
 import jwt
+import requests
+from cryptography import x509
 
-try:
-    from botocore.vendored import requests
-except ImportError:
-    import requests
 
 class FIDOMetadataClient:
     mds_url = "https://mds.fidoalliance.org/"

@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "pywarp"
+version = "0.1.0"
+description = "Python Web Authentication Relying Party library"
+authors = ["Ranieri Althoff <ranisalt@gmail.com>"]
+license = "Apache-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.4"
+cbor2 = "^4.1"
+cryptography = "^2.6"
+pyjwt = "^1.7"
+requests = "^2.21"
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.4"
+faker = "^1.0"
+pytest-cov = "^2.6"
+pytest-flake8 = "^1.0"
+wheel = "^0.33.1"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

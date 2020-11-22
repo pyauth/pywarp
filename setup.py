@@ -16,7 +16,7 @@ setup(
     install_requires=[
         "pyjwt >= 1.5.3, < 2",
         "cbor2 >= 4.1.2, < 5",
-        "cryptography >= 2.1.4, < 3",
+        "cryptography >= 3.2, < 4",
         "requests >= 2.18.4, < 3"
     ],
     tests_require=tests_require,

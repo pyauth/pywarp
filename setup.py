@@ -14,7 +14,7 @@ setup(
     description="Python WebAuthn Relying Party library",
     long_description=open("README.rst").read(),
     install_requires=[
-        "pyjwt >= 1.5.3, < 2",
+        "pyjwt >= 2.0.1",
         "cbor2 >= 4.1.2, < 5",
         "cryptography >= 3.2, < 4",
         "requests >= 2.18.4, < 3"

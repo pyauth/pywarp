@@ -1,4 +1,4 @@
-pyjwt >= 1.5.3, < 2
+pyjwt >= 2.0.1
 cbor2 >= 4.1.2, < 5
 cryptography >= 3.2, < 4
 pynamodb >= 3.3.1, < 4

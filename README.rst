@@ -36,6 +36,8 @@ Installation
 
     pip install pywarp
 
+PyWARP requires Python 3.6+. Python 2.7 and <= 3.5 is not supported.
+
 PyWARP depends on `cryptography <https://github.com/pyca/cryptography>`_, which in turn requires OpenSSL and CFFI. See
 the `cryptography installation docs <https://cryptography.io/en/latest/installation/>`_ for more details.
 

@@ -1,4 +1,4 @@
-import re, json, hashlib
+import re, json, hashlib, secrets
 
 import cbor2
 
@@ -6,7 +6,6 @@ from .attestation import FIDOU2FAttestationStatement
 from .authenticators import AuthenticatorData
 from .cose import Algorithms
 from .util import b64_encode, b64url_decode
-from .util.compat import token_bytes
 
 
 class RelyingPartyManager:
@@ -17,7 +16,7 @@ class RelyingPartyManager:
 
     def get_registration_options(self, email, display_name=None, icon=None):
         "Get challenge parameters that will be passed to the user agent's navigator.credentials.get() method"
-        challenge = token_bytes(32)
+        challenge = secrets.token_bytes(32)
 
         options = {
             "challenge": b64_encode(challenge),
@@ -47,7 +46,7 @@ class RelyingPartyManager:
 
     def get_authentication_options(self, email):
         credential = self.storage_backend.get_credential_by_email(email)
-        challenge = token_bytes(32)
+        challenge = secrets.token_bytes(32)
 
         options = {
             "challenge": challenge,

@@ -43,4 +43,5 @@ def verify_assertion():
     print("verifyAssertion inputs:", req)
     return rp.verify(**req)
 
+
 rp = RelyingPartyManager("PyWARP demo", credential_storage_backend=DynamoBackend())

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import os, sys, unittest, json, collections
+import os, sys, unittest, collections
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # noqa
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from pywarp import RelyingPartyManager
-from pywarp.backends import CredentialStorageBackend
+from pywarp import RelyingPartyManager  # noqa:E402
+from pywarp.backends import CredentialStorageBackend  # noqa:E402
 
 class MemoryBackend(CredentialStorageBackend):
     def __init__(self):
@@ -28,6 +28,8 @@ class TestPyWARP(unittest.TestCase):
     def test_pywarp(self):
         rp = RelyingPartyManager(__name__, credential_storage_backend=MemoryBackend())
         opts = rp.get_registration_options(email="x")
+        self.assertNotEqual(opts, None)
+
 
 if __name__ == '__main__':
     unittest.main()

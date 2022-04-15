@@ -1,4 +1,4 @@
-import textwrap, base64
+import base64
 
 def b64_encode(b):
     return base64.b64encode(b).decode()

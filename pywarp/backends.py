@@ -1,9 +1,12 @@
 from .credentials import Credential
 
+
 class CredentialStorageBackend:
     def __init__(self):
-        raise NotImplementedError("Implementers should subclass CredentialStorageBackend and pass the subclass instance"
-                                  " when instantiating RelyingPartyManager.")
+        raise NotImplementedError(
+            "Implementers should subclass CredentialStorageBackend and pass the subclass instance"
+            " when instantiating RelyingPartyManager."
+        )
 
     def get_credential_by_email(self, email):
         raise NotImplementedError()
@@ -17,18 +20,22 @@ class CredentialStorageBackend:
     def get_challenge_for_user(self, email, type):
         raise NotImplementedError()
 
+
 class DynamoBackend(CredentialStorageBackend):
     def __init__(self):
-        import pynamodb.models, pynamodb.attributes
+        import pynamodb.attributes
+        import pynamodb.models
 
         class UserModel(pynamodb.models.Model):
             class Meta:
                 table_name = "pywarp-users"
+
             email = pynamodb.attributes.UnicodeAttribute(hash_key=True)
             registration_challenge = pynamodb.attributes.BinaryAttribute(null=True)
             authentication_challenge = pynamodb.attributes.BinaryAttribute(null=True)
             credential_id = pynamodb.attributes.BinaryAttribute(null=True)
             credential_public_key = pynamodb.attributes.BinaryAttribute(null=True)
+
         self.UserModel = UserModel
         self.UserModel.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
 

@@ -7,15 +7,18 @@ from cryptography.hazmat.primitives.asymmetric import ec, padding
 
 from .fido.metadata import FIDOMetadataClient
 
+
 class AttestationStatement:
-    validated_attestation = namedtuple("ValidatedAttestation", "type trust_path credential")
+    validated_attestation = namedtuple("ValidatedAttestation", "type trust_path credential")  # type: ignore
 
     def __init__(self):
         pass
 
+
 class TPMAttestationStatement(AttestationStatement):
     def __init__(self):
         raise NotImplementedError()
+
 
 class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
     def __init__(self, att_stmt):
@@ -29,11 +32,11 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
     def validate(self, authenticator_data, rp_id_hash, client_data_hash):
         # See https://www.w3.org/TR/webauthn/#fido-u2f-attestation, "Verification procedure"
         credential = authenticator_data.credential
-        public_key_u2f = b'\x04' + credential.public_key.x + credential.public_key.y
-        verification_data = b'\x00' + rp_id_hash + client_data_hash + credential.id + public_key_u2f
+        public_key_u2f = b"\x04" + credential.public_key.x + credential.public_key.y
+        verification_data = b"\x00" + rp_id_hash + client_data_hash + credential.id + public_key_u2f
         assert len(credential.public_key.x) == 32
         assert len(credential.public_key.y) == 32
-        self.cert_public_key.verify(self.signature, verification_data, ec.ECDSA(hashes.SHA256()))
+        self.cert_public_key.verify(self.signature, verification_data, ec.ECDSA(hashes.SHA256()))  # type: ignore
         key_id = x509.SubjectKeyIdentifier.from_public_key(self.cert_public_key).digest.hex()
         att_root_cert_chain = self.metadata_for_key_id(key_id)["attestationRootCertificates"]
 
@@ -42,10 +45,13 @@ class FIDOU2FAttestationStatement(AttestationStatement, FIDOMetadataClient):
         # See https://github.com/pyca/cryptography/issues/2381
         # See https://github.com/wbond/certvalidator
         assert len(att_root_cert_chain) == 1
-        att_root_cert = x509.load_der_x509_certificate(att_root_cert_chain[0].encode(),
-                                                       cryptography.hazmat.backends.default_backend())
-        att_root_cert.public_key().verify(self.att_cert.signature,
-                                          self.att_cert.tbs_certificate_bytes,
-                                          padding.PKCS1v15(),
-                                          self.att_cert.signature_hash_algorithm)
+        att_root_cert = x509.load_der_x509_certificate(
+            att_root_cert_chain[0].encode(), cryptography.hazmat.backends.default_backend()
+        )
+        att_root_cert.public_key().verify(  # type: ignore
+            self.att_cert.signature,
+            self.att_cert.tbs_certificate_bytes,
+            padding.PKCS1v15(),  # type: ignore
+            self.att_cert.signature_hash_algorithm,  # type: ignore
+        )
         return self.validated_attestation(type="Basic", trust_path="x5c", credential=credential)

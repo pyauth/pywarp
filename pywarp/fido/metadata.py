@@ -1,14 +1,12 @@
-import json, base64
+import base64
+import json
 from functools import lru_cache
 
 import cryptography.hazmat.backends
-from cryptography import x509
 import jwt
+import requests
+from cryptography import x509
 
-try:
-    from botocore.vendored import requests
-except ImportError:
-    import requests
 
 class FIDOMetadataClient:
     mds_url = "https://mds.fidoalliance.org/"
@@ -21,9 +19,11 @@ class FIDOMetadataClient:
             res.raise_for_status()
             jwt_header = jwt.get_unverified_header(res.content)
             assert jwt_header["alg"] == "ES256"
-            cert = x509.load_der_x509_certificate(jwt_header["x5c"][0].encode(),
-                                                  cryptography.hazmat.backends.default_backend())
-            self._metadata_toc = jwt.decode(res.content, key=cert.public_key(), algorithms=["ES256"])
+            cert = x509.load_der_x509_certificate(
+                jwt_header["x5c"][0].encode(), cryptography.hazmat.backends.default_backend()
+            )
+            # FIXME: test coverage
+            self._metadata_toc = jwt.decode(res.content, key=cert.public_key(), algorithms=["ES256"])  # type: ignore
         return self._metadata_toc
 
     @lru_cache(64)

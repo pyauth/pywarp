@@ -2,8 +2,7 @@ import cbor2
 import cryptography.hazmat.backends
 from cryptography.hazmat.primitives.asymmetric import ec
 
-from .cose import (EC2Params, EllipticCurves, KeyTypes, Params, RSAParams,
-                   SignatureAlgorithms)
+from .cose import EC2Params, EllipticCurves, KeyTypes, Params, RSAParams, SignatureAlgorithms
 
 
 class CredentialPublicKey:
@@ -32,9 +31,11 @@ class Credential:
 
     def verify(self, signature, signed_data):
         ec_curve = EllipticCurves[self.public_key.ec_id]
-        ec_pk_numbers = ec.EllipticCurvePublicNumbers(int.from_bytes(self.public_key.x, byteorder="big"),
-                                                      int.from_bytes(self.public_key.y, byteorder="big"),
-                                                      ec_curve)
+        ec_pk_numbers = ec.EllipticCurvePublicNumbers(
+            int.from_bytes(self.public_key.x, byteorder="big"),
+            int.from_bytes(self.public_key.y, byteorder="big"),
+            ec_curve,  # type: ignore
+        )
         ec_public_key = ec_pk_numbers.public_key(cryptography.hazmat.backends.default_backend())
         sig_alg = SignatureAlgorithms[self.public_key.algorithm]
-        ec_public_key.verify(signature, signed_data, ec.ECDSA(sig_alg()))
+        ec_public_key.verify(signature, signed_data, ec.ECDSA(sig_alg()))  # type: ignore

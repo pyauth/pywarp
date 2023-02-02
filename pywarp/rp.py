@@ -1,4 +1,7 @@
-import re, json, hashlib, secrets
+import hashlib
+import json
+import re
+import secrets
 
 import cbor2
 
@@ -38,7 +41,7 @@ class RelyingPartyManager:
             "timeout": 60 * 1000,
             "excludeCredentials": [],
             "attestation": "direct",
-            "extensions": {"loc": True}
+            "extensions": {"loc": True},
         }
 
         self.storage_backend.save_challenge_for_user(email=email, challenge=challenge, type="registration")
@@ -51,9 +54,7 @@ class RelyingPartyManager:
         options = {
             "challenge": challenge,
             "timeout": 60 * 1000,
-            "allowCredentials": [
-                {"type": "public-key", "id": b64_encode(credential.id)}
-            ],
+            "allowCredentials": [{"type": "public-key", "id": b64_encode(credential.id)}],
         }
 
         self.storage_backend.save_challenge_for_user(email=email, challenge=challenge, type="authentication")
@@ -82,10 +83,10 @@ class RelyingPartyManager:
         # If user verification is required for this registration,
         # verify that the User Verified bit of the flags in authData is set.
         assert authenticator_attestation_response["fmt"] == "fido-u2f"
-        att_stmt = FIDOU2FAttestationStatement(authenticator_attestation_response['attStmt'])
-        attestation = att_stmt.validate(authenticator_data,
-                                        rp_id_hash=authenticator_data.rp_id_hash,
-                                        client_data_hash=client_data_hash)
+        att_stmt = FIDOU2FAttestationStatement(authenticator_attestation_response["attStmt"])
+        attestation = att_stmt.validate(
+            authenticator_data, rp_id_hash=authenticator_data.rp_id_hash, client_data_hash=client_data_hash
+        )
         credential = attestation.credential
         # TODO: ascertain user identity here
         self.storage_backend.save_credential_for_user(email=email, credential=credential)

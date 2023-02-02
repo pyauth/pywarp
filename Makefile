@@ -2,8 +2,9 @@ SHELL=/bin/bash
 
 lint:
 	flake8
+	mypy --install-types --non-interactive --check-untyped-defs $$(dirname */__init__.py)
 
-test: lint
+test:
 	python ./test/test.py -v
 
 init_docs:
@@ -14,8 +15,9 @@ docs:
 
 install:
 	-rm -rf dist
+	python -m pip install build
 	python -m build
-	pip install --upgrade dist/*.whl
+	python -m pip install --upgrade $$(echo dist/*.whl)[tests]
 
 .PHONY: test lint release docs
 

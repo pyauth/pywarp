@@ -5,12 +5,16 @@ API documentation
 
 .. automodule:: pywarp
    :members:
+   :imported-members:
+   :undoc-members:
 
-Table of Contents
-=================
+Change log
+==========
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 2
+
+   changelog
 
 * :ref:`genindex`
 * :ref:`modindex`

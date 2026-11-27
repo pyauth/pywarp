@@ -1,24 +1,19 @@
-SHELL=/bin/bash
-
 lint:
-	flake8
-	mypy --install-types --non-interactive --check-untyped-defs $$(dirname */__init__.py)
+	ruff check .
+	python -m mypy --check-untyped-defs pywarp
 
-test:
-	python ./test/test.py -v
-
-init_docs:
-	cd docs; sphinx-quickstart
+test: lint
+	python -m coverage run --branch --source=pywarp ./test/test.py -v
 
 docs:
-	sphinx-build docs docs/html
+	python -m sphinx -W -b html docs docs/html
 
 install:
-	-rm -rf dist
+	rm -rf dist
 	python -m pip install build
 	python -m build
-	python -m pip install --upgrade $$(echo dist/*.whl)[tests]
+	python -m pip install --upgrade "$$(echo dist/*.whl)[tests]"
 
-.PHONY: test lint release docs
+.PHONY: test lint docs install
 
 include common.mk

@@ -12,6 +12,10 @@ __pycache__/
 /.eggs/
 /*/version.py
 
+# Sphinx documentation
+/docs/_build/
+/docs/html/
+
 # IDE project files
 /.pydevproject
 
@@ -29,5 +33,12 @@ npm-debug.log
 # OS X metadata files
 .DS_Store
 
-# Python coverage 
+# Python coverage
 .coverage
+htmlcov/
+
+# Virtual environments and tool caches
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/

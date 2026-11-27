@@ -1,4 +1,4 @@
-SHELL=/bin/bash -eo pipefail
+SHELL := /bin/bash
 
 release-major:
 	$(eval export TAG=$(shell git describe --tags --match 'v*.*.*' | perl -ne '/^v(\d+)\.(\d+)\.(\d+)/; print "v@{[$$1+1]}.0.0"'))
@@ -13,37 +13,28 @@ release-patch:
 	$(MAKE) release
 
 release:
-	@if ! git diff --cached --exit-code; then echo "Commit staged files before proceeding"; exit 1; fi
-	@if [[ -z $$TAG ]]; then echo "Use release-{major,minor,patch}"; exit 1; fi
-	@if ! type -P pandoc; then echo "Please install pandoc"; exit 1; fi
-	@if ! type -P sponge; then echo "Please install moreutils"; exit 1; fi
-	@if ! type -P http; then echo "Please install httpie"; exit 1; fi
-	@if ! type -P twine; then echo "Please install twine"; exit 1; fi
-	$(eval REMOTE=$(shell git remote get-url origin | perl -ne '/([^\/\:]+\/[^\/\:]+?)(\.git)?$$/; print $$1'))
-	$(eval GIT_USER=$(shell git config --get user.email))
-	$(eval GH_AUTH=$(shell if grep -q '@github.com' ~/.git-credentials; then echo $$(grep '@github.com' ~/.git-credentials | python3 -c 'import sys, urllib.parse as p; print(p.urlparse(sys.stdin.read()).netloc.split("@")[0])'); else echo $(GIT_USER); fi))
-	$(eval RELEASES_API=https://api.github.com/repos/${REMOTE}/releases)
-	$(eval UPLOADS_API=https://uploads.github.com/repos/${REMOTE}/releases)
-	git pull
-	git clean -x --force $$(python setup.py --name)
-	TAG_MSG=$$(mktemp); \
-	    echo "# Changes for ${TAG} ($$(date +%Y-%m-%d))" > $$TAG_MSG; \
-	    git log --pretty=format:%s $$(git describe --abbrev=0)..HEAD >> $$TAG_MSG; \
-	    $${EDITOR:-emacs} $$TAG_MSG; \
-	    if [[ -f Changes.md ]]; then cat $$TAG_MSG <(echo) Changes.md | sponge Changes.md; git add Changes.md; fi; \
-	    if [[ -f Changes.rst ]]; then cat <(pandoc --from markdown --to rst $$TAG_MSG) <(echo) Changes.rst | sponge Changes.rst; git add Changes.rst; fi; \
-	    git commit -m ${TAG}; \
-	    git tag --sign --annotate --file $$TAG_MSG ${TAG}
-	git push --follow-tags
-	http --check-status --auth ${GH_AUTH} ${RELEASES_API} tag_name=${TAG} name=${TAG} \
-	    body="$$(git tag --list ${TAG} -n99 | perl -pe 's/^\S+\s*// if $$. == 1' | sed 's/^\s\s\s\s//')"
-	$(MAKE) install
-	http --check-status --auth ${GH_AUTH} POST ${UPLOADS_API}/$$(http --auth ${GH_AUTH} ${RELEASES_API}/latest | jq .id)/assets \
-	    name==$$(basename dist/*.whl) label=="Python Wheel" < dist/*.whl
-	$(MAKE) release-pypi
+	@if [[ "$$(git branch --show-current)" != main ]]; then echo "Releases must be run from main"; exit 1; fi
+	@if ! git diff --quiet HEAD; then echo "Commit staged and unstaged changes before proceeding"; exit 1; fi
+	@if [[ ! $$TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$$ ]]; then echo "Use release-{major,minor,patch}"; exit 1; fi
+	@command -v pandoc >/dev/null || { echo "Please install pandoc"; exit 1; }
+	@command -v sponge >/dev/null || { echo "Please install moreutils"; exit 1; }
+	@command -v gh >/dev/null || { echo "Please install gh"; exit 1; }
+	@python -c 'import build' || { echo "Please install build"; exit 1; }
+	git pull --ff-only
+	@if git show-ref --verify --quiet "refs/tags/$$TAG"; then echo "Tag $$TAG already exists"; exit 1; fi
+	@set -eo pipefail; \
+	    release_dir=$$(mktemp -d); \
+	    trap 'rm -rf "$$release_dir"' EXIT; \
+	    notes="$$release_dir/notes.md"; \
+	    printf '# Changes for %s (%s)\n\n' "$$TAG" "$$(date +%Y-%m-%d)" > "$$notes"; \
+	    git log --format=%s "$$(git describe --tags --abbrev=0 --match 'v*.*.*')..HEAD" >> "$$notes"; \
+	    $${EDITOR:-emacs} "$$notes"; \
+	    { pandoc --from markdown --to rst "$$notes"; echo; cat Changes.rst; } | sponge Changes.rst; \
+	    git add Changes.rst; \
+	    git commit -m "$$TAG"; \
+	    git tag --annotate --file "$$notes" "$$TAG"; \
+	    python -m build --outdir "$$release_dir/dist"; \
+	    git push --atomic origin HEAD:refs/heads/main "refs/tags/$$TAG"; \
+	    gh release create "$$TAG" "$$release_dir"/dist/*.whl --verify-tag --title "$$TAG" --notes-file "$$notes"
 
-release-pypi:
-	python -m build
-	twine upload dist/*.tar.gz dist/*.whl --sign --verbose
-
-.PHONY: release
+.PHONY: release-major release-minor release-patch release

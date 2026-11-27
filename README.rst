@@ -36,7 +36,7 @@ Installation
 
     pip install pywarp
 
-PyWARP requires Python 3.6+. Python 2.7 and <= 3.5 is not supported.
+PyWARP requires Python 3.10 or later.
 
 PyWARP depends on `cryptography <https://github.com/pyca/cryptography>`_, which in turn requires OpenSSL and CFFI. See
 the `cryptography installation docs <https://cryptography.io/en/latest/installation/>`_ for more details.
@@ -69,8 +69,8 @@ Synopsis
     rp.verify(authenticator_data=bytes, client_data_json=bytes, signature=bytes, user_handle=bytes, raw_id=bytes,
               email=bytes)
 
-See `examples/chalice/app.py <https://github.com/pyauth/pywarp/blob/master/examples/chalice/app.py>`_ and
-`examples/chalice/chalicelib/index.html <https://github.com/pyauth/pywarp/blob/master/examples/chalice/chalicelib/index.html>`_
+See `examples/chalice/app.py <https://github.com/pyauth/pywarp/blob/main/examples/chalice/app.py>`_ and
+`examples/chalice/chalicelib/index.html <https://github.com/pyauth/pywarp/blob/main/examples/chalice/chalicelib/index.html>`_
 (frontend) for a complete example.
 
 Storage backends
@@ -121,7 +121,15 @@ The Chalice app example (in the ``examples/chalice`` directory) can be deployed 
 
 To deploy this example, run ``make -C examples/chalice`` after configuring your AWS CLI credentials.
 
-See the `API documentation <https://pywarp.readthedocs.io/>`_ for more.
+See the `API documentation <https://pyauth.github.io/pywarp/>`_ for more.
+
+Building the documentation
+--------------------------
+
+From a checkout, install the documentation dependencies and build the HTML site::
+
+    python -m pip install ".[docs]"
+    make docs
 
 Authors
 -------
@@ -130,9 +138,9 @@ Authors
 Links
 -----
 * `Project home page (GitHub) <https://github.com/pyauth/pywarp>`_
-* `Documentation (Read the Docs) <https://pywarp.readthedocs.io/en/latest/>`_
-* `Package distribution (PyPI) <https://pypi.python.org/pypi/pywarp>`_
-* `Change log <https://github.com/pyauth/pywarp/blob/master/Changes.rst>`_
+* `Documentation <https://pyauth.github.io/pywarp/>`_
+* `Package distribution (PyPI) <https://pypi.org/project/pywarp/>`_
+* `Change log <https://github.com/pyauth/pywarp/blob/main/Changes.rst>`_
 
 Bugs
 ----
@@ -142,13 +150,10 @@ License
 -------
 Licensed under the terms of the `Apache License, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
-.. image:: https://img.shields.io/travis/com/pyauth/pywarp.svg
-        :target: https://travis-ci.com/pyauth/pywarp
-.. image:: https://codecov.io/github/pyauth/pywarp/coverage.svg?branch=master
-        :target: https://codecov.io/github/pyauth/pywarp?branch=master
+.. image:: https://github.com/pyauth/pywarp/actions/workflows/ci.yml/badge.svg
+        :target: https://github.com/pyauth/pywarp/actions/workflows/ci.yml
+        :alt: GitHub Actions CI
 .. image:: https://img.shields.io/pypi/v/pywarp.svg
-        :target: https://pypi.python.org/pypi/pywarp
+        :target: https://pypi.org/project/pywarp/
 .. image:: https://img.shields.io/pypi/l/pywarp.svg
-        :target: https://pypi.python.org/pypi/pywarp
-.. image:: https://readthedocs.org/projects/pywarp/badge/?version=latest
-        :target: https://pywarp.readthedocs.io/
+        :target: https://pypi.org/project/pywarp/

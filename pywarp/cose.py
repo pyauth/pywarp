@@ -8,6 +8,7 @@ class Params:
     """
     See https://www.iana.org/assignments/cose
     """
+
     KTY = 1
     ALG = 3
 

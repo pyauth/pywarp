@@ -1,6 +1,7 @@
 """
 See https://www.w3.org/TR/webauthn/#api
 """
+
 import base64
 
 from botocore import xform_name
